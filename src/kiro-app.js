@@ -1,26 +1,16 @@
-import { ScenarioManager } from './core/ScenarioManager.js';
-import { ProjectileMotion } from './scenarios/ProjectileMotion.js';
-import { FreeFall } from './scenarios/FreeFall.js';
-import { Friction } from './scenarios/Friction.js';
+import { P5PhysicsRenderer } from './core/P5PhysicsRenderer.js';
 
 class KIROApp {
   constructor() {
-    this.manager = new ScenarioManager();
+    this.renderer = new P5PhysicsRenderer();
     this.currentModule = null;
     this.currentConcept = null;
     this.currentLesson = null;
     this.isPlaying = false;
     this.graphData = [];
     
-    this.registerScenarios();
     this.initProgress();
     window.app = this;
-  }
-
-  registerScenarios() {
-    this.manager.register(ProjectileMotion);
-    this.manager.register(FreeFall);
-    this.manager.register(Friction);
   }
 
   initProgress() {
@@ -336,9 +326,9 @@ class KIROApp {
     
     document.getElementById('problemDisplay').textContent = lesson.problem;
     
-    this.manager.load(lesson.scenario, lesson.params);
+    // Initialize p5.js renderer
+    this.renderer.init('simCanvas', lesson.params, lesson.scenario);
     this.setupParameters(lesson.scenario, lesson.params);
-    this.renderInitialState();
   }
 
   setupParameters(scenario, params) {
@@ -383,15 +373,8 @@ class KIROApp {
     document.querySelectorAll('#paramControls input').forEach(input => {
       params[input.id] = parseFloat(input.value);
     });
-    this.manager.load(this.currentLesson.scenario, params);
-    this.renderInitialState();
-  }
-
-  renderInitialState() {
-    const canvas = document.getElementById('simCanvas');
-    const ctx = canvas.getContext('2d');
-    this.manager.currentScenario.calculateState();
-    this.manager.render(ctx);
+    this.currentLesson.params = params;
+    this.renderer.updateParams(params);
   }
 
   startSimulation() {
@@ -491,17 +474,20 @@ class KIROApp {
   togglePlay() {
     this.isPlaying = !this.isPlaying;
     document.getElementById('playPauseBtn').textContent = this.isPlaying ? 'Pause' : 'Play';
-    if (this.isPlaying) this.animate();
+    
+    if (this.isPlaying) {
+      this.renderer.play();
+    } else {
+      this.renderer.pause();
+    }
   }
 
   resetSimulation() {
     this.isPlaying = false;
     this.graphData = [];
-    this.manager.currentScenario.reset();
     document.getElementById('insightsList').innerHTML = '';
     document.getElementById('playPauseBtn').textContent = 'Play';
-    this.renderInitialState();
-    this.drawGraph();
+    this.renderer.reset();
   }
 
   markComplete() {

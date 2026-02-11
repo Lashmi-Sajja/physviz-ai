@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KIRO - AI Physics Learning Platform</title>
   <link rel="stylesheet" href="kiro-styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
 </head>
 <body>
   <!-- Landing Page -->
@@ -183,7 +184,7 @@
 
       <!-- Center: Canvas -->
       <div class="sim-center">
-        <canvas id="simCanvas" width="600" height="400"></canvas>
+        <div id="simCanvas"></div>
         <div class="sim-controls">
           <button id="playPauseBtn" onclick="app.togglePlay()">Play</button>
           <span id="timeDisplay">Time: 0.00s</span>

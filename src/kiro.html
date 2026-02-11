@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KIRO - AI Physics Learning Platform</title>
+  <link rel="stylesheet" href="kiro-styles.css">
+</head>
+<body>
+  <!-- Landing Page -->
+  <section id="landing" class="page active">
+    <div class="hero">
+      <div class="logo">KIRO</div>
+      <h1>AI-Powered Physics Learning Platform</h1>
+      <p class="tagline">Transform Physics Problems into Interactive Visual Experiences</p>
+      <button class="cta-btn" onclick="app.showModules()">Start Learning</button>
+    </div>
+    <div class="animated-bg"></div>
+  </section>
+
+  <!-- Physics Modules -->
+  <section id="modules" class="page">
+    <nav class="top-nav">
+      <div class="logo-small">KIRO</div>
+      <div class="progress-indicator">
+        <span id="progressText">0% Complete</span>
+        <div class="progress-bar"><div id="progressFill"></div></div>
+      </div>
+    </nav>
+
+    <div class="content">
+      <h1>Physics Modules</h1>
+      <div class="module-grid">
+        <div class="module-card" onclick="app.showConcepts('kinematics')">
+          <div class="module-icon">K</div>
+          <h3>Kinematics</h3>
+          <p>Motion and Velocity</p>
+          <span class="badge">3 Concepts</span>
+        </div>
+
+        <div class="module-card locked">
+          <div class="module-icon">D</div>
+          <h3>Dynamics</h3>
+          <p>Forces and Motion</p>
+          <span class="badge">Coming Soon</span>
+        </div>
+
+        <div class="module-card locked">
+          <div class="module-icon">T</div>
+          <h3>Thermodynamics</h3>
+          <p>Heat and Energy</p>
+          <span class="badge">Coming Soon</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Concepts (Lessons) -->
+  <section id="concepts" class="page">
+    <nav class="top-nav">
+      <button class="back-btn" onclick="app.showModules()">← Back</button>
+      <div class="logo-small">KIRO</div>
+    </nav>
+
+    <div class="content">
+      <h1 id="conceptTitle">Kinematics</h1>
+      <div class="concept-list">
+        <div class="concept-card" onclick="app.showLessons('projectile')">
+          <h3>Projectile Motion</h3>
+          <p>Objects launched at angles</p>
+          <div class="difficulty-badges">
+            <span class="diff easy">Easy</span>
+            <span class="diff medium">Medium</span>
+            <span class="diff hard">Hard</span>
+          </div>
+        </div>
+
+        <div class="concept-card" onclick="app.showLessons('freefall')">
+          <h3>Free Fall</h3>
+          <p>Objects falling under gravity</p>
+          <div class="difficulty-badges">
+            <span class="diff easy">Easy</span>
+            <span class="diff medium">Medium</span>
+            <span class="diff hard">Hard</span>
+          </div>
+        </div>
+
+        <div class="concept-card" onclick="app.showLessons('friction')">
+          <h3>Friction</h3>
+          <p>Sliding with resistance</p>
+          <div class="difficulty-badges">
+            <span class="diff easy">Easy</span>
+            <span class="diff medium">Medium</span>
+            <span class="diff hard">Hard</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Lessons (Difficulty Levels) -->
+  <section id="lessons" class="page">
+    <nav class="top-nav">
+      <button class="back-btn" onclick="app.showConcepts('kinematics')">← Back</button>
+      <div class="logo-small">KIRO</div>
+    </nav>
+
+    <div class="content">
+      <h1 id="lessonTitle">Projectile Motion</h1>
+      <div class="lesson-list" id="lessonList"></div>
+    </div>
+  </section>
+
+  <!-- Simulation -->
+  <section id="simulation" class="page">
+    <nav class="top-nav">
+      <button class="back-btn" onclick="app.backToLessons()">← Back</button>
+      <div class="logo-small">KIRO</div>
+      <button class="test-btn" onclick="app.showTest()">Take Test</button>
+    </nav>
+
+    <div class="sim-layout">
+      <!-- Left: Problem Input -->
+      <div class="sim-left">
+        <h3>Problem Statement</h3>
+        <div id="problemDisplay" class="problem-box"></div>
+        
+        <h3>Parameters</h3>
+        <div id="paramControls" class="param-controls"></div>
+        
+        <button class="btn-primary" onclick="app.startSimulation()">Start Simulation</button>
+        <button class="btn-secondary" onclick="app.resetSimulation()">Reset</button>
+      </div>
+
+      <!-- Center: Canvas -->
+      <div class="sim-center">
+        <canvas id="simCanvas" width="600" height="400"></canvas>
+        <div class="sim-controls">
+          <button id="playPauseBtn" onclick="app.togglePlay()">Play</button>
+          <span id="timeDisplay">Time: 0.00s</span>
+        </div>
+      </div>
+
+      <!-- Right: Insights -->
+      <div class="sim-right">
+        <h3>Insights</h3>
+        <div id="insightsList"></div>
+        
+        <h3>What-If</h3>
+        <div id="whatIfList"></div>
+      </div>
+    </div>
+
+    <!-- Bottom: Graph -->
+    <div class="graph-section">
+      <h3>Height vs Time</h3>
+      <canvas id="graphCanvas" width="800" height="200"></canvas>
+    </div>
+  </section>
+
+  <!-- Test/Quiz -->
+  <section id="test" class="page">
+    <nav class="top-nav">
+      <button class="back-btn" onclick="app.backToSimulation()">← Back</button>
+      <div class="logo-small">KIRO</div>
+    </nav>
+
+    <div class="content">
+      <h1>Concept Test</h1>
+      <div id="quizContainer" class="quiz-container"></div>
+      <button class="btn-primary" onclick="app.submitTest()">Submit Test</button>
+    </div>
+  </section>
+
+  <script type="module" src="kiro-app.js"></script>
+</body>
+</html>

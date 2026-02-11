@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PhysicsViz - AI Physics Visualizer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>PhysicsViz</h1>
+      <p>AI-Powered Physics Problem Visualizer</p>
+    </header>
+
+    <!-- Scenario Selector -->
+    <section class="scenario-selector">
+      <h2>Choose Physics Module</h2>
+      <div class="scenario-grid">
+        <button class="scenario-card" data-scenario="projectile_motion">
+          <div class="icon">PM</div>
+          <h3>Projectile Motion</h3>
+          <p>Launch at an angle</p>
+        </button>
+        
+        <button class="scenario-card" data-scenario="free_fall">
+          <div class="icon">FF</div>
+          <h3>Free Fall</h3>
+          <p>Dropped from height</p>
+        </button>
+        
+        <button class="scenario-card" data-scenario="friction">
+          <div class="icon">FR</div>
+          <h3>Friction</h3>
+          <p>Sliding with resistance</p>
+        </button>
+        
+        <button class="scenario-card disabled" data-scenario="vertical">
+          <div class="icon">VT</div>
+          <h3>Vertical Throw</h3>
+          <p>Coming soon</p>
+        </button>
+        
+        <button class="scenario-card disabled" data-scenario="collision">
+          <div class="icon">CL</div>
+          <h3>Collision</h3>
+          <p>Coming soon</p>
+        </button>
+        
+        <button class="scenario-card disabled" data-scenario="pendulum">
+          <div class="icon">PD</div>
+          <h3>Pendulum</h3>
+          <p>Coming soon</p>
+        </button>
+      </div>
+    </section>
+
+    <!-- Problem Input -->
+    <section class="problem-input" style="display: none;">
+      <h2>Enter Problem or Use Quick Start</h2>
+      <textarea id="problemText" placeholder="e.g., A ball is thrown at 45 degrees with speed 20 m/s"></textarea>
+      <div class="button-group">
+        <button id="parseBtn" class="btn-primary">Parse with AI</button>
+        <button id="quickStartBtn" class="btn-secondary">Quick Start</button>
+        <button id="backBtn" class="btn-text">← Back</button>
+      </div>
+    </section>
+
+    <!-- Parameters Panel -->
+    <section class="parameters" style="display: none;">
+      <h2>Adjust Parameters</h2>
+      <div id="paramControls"></div>
+      <div class="button-group">
+        <button id="startBtn" class="btn-primary">Start Simulation</button>
+        <button id="resetBtn" class="btn-secondary">Reset</button>
+      </div>
+    </section>
+
+    <!-- Visualization Canvas -->
+    <section class="visualization" style="display: none;">
+      <canvas id="canvas" width="800" height="600"></canvas>
+      <div class="controls">
+        <button id="playPauseBtn" class="btn-primary">▶ Play</button>
+        <button id="restartBtn" class="btn-secondary">↻ Restart</button>
+        <span id="timeDisplay">Time: 0.00s</span>
+      </div>
+    </section>
+
+    <!-- Insights Panel -->
+    <aside class="insights" style="display: none;">
+      <h3>Insights</h3>
+      <div id="insightsList"></div>
+      
+      <h3>What-If Scenarios</h3>
+      <div id="whatIfList"></div>
+    </aside>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

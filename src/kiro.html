@@ -31,25 +31,74 @@
     <div class="content">
       <h1>Physics Modules</h1>
       <div class="module-grid">
+        <div class="module-card" onclick="app.showCustomInput()">
+          <div class="module-icon">✍️</div>
+          <h3>Custom Problem</h3>
+          <p>Enter Your Own</p>
+          <span class="badge">AI Powered</span>
+        </div>
+
         <div class="module-card" onclick="app.showConcepts('kinematics')">
-          <div class="module-icon">K</div>
+          <div class="module-icon">🎯</div>
           <h3>Kinematics</h3>
-          <p>Motion and Velocity</p>
-          <span class="badge">3 Concepts</span>
+          <p>Motion & Velocity</p>
+          <span class="badge">3 Scenarios</span>
         </div>
 
-        <div class="module-card locked">
-          <div class="module-icon">D</div>
-          <h3>Dynamics</h3>
-          <p>Forces and Motion</p>
-          <span class="badge">Coming Soon</span>
+        <div class="module-card" onclick="app.showConcepts('fluid')">
+          <div class="module-icon">💧</div>
+          <h3>Fluid Mechanics</h3>
+          <p>Liquids & Gases</p>
+          <span class="badge">3 Scenarios</span>
         </div>
 
-        <div class="module-card locked">
-          <div class="module-icon">T</div>
+        <div class="module-card" onclick="app.showConcepts('thermodynamics')">
+          <div class="module-icon">🔥</div>
           <h3>Thermodynamics</h3>
-          <p>Heat and Energy</p>
-          <span class="badge">Coming Soon</span>
+          <p>Heat & Energy</p>
+          <span class="badge">3 Scenarios</span>
+        </div>
+
+        <div class="module-card" onclick="app.showConcepts('electromagnetism')">
+          <div class="module-icon">⚡</div>
+          <h3>Electromagnetism</h3>
+          <p>Electricity & Magnetism</p>
+          <span class="badge">3 Scenarios</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Custom Problem Input -->
+  <section id="customInput" class="page">
+    <nav class="top-nav">
+      <button class="back-btn" onclick="app.showModules()">← Back</button>
+      <div class="logo-small">KIRO</div>
+    </nav>
+
+    <div class="content">
+      <h1>Enter Physics Problem</h1>
+      
+      <div class="custom-input-container">
+        <div class="input-section">
+          <h3>Type Your Problem</h3>
+          <textarea id="customProblem" placeholder="Example: A ball is thrown at 45 degrees with speed 20 m/s"></textarea>
+          
+          <div class="example-problems">
+            <h4>Quick Examples:</h4>
+            <button onclick="app.fillExample('A ball is thrown straight up with speed 15 m/s')">Vertical Throw</button>
+            <button onclick="app.fillExample('A ball is thrown at 45° with speed 20 m/s')">Projectile</button>
+            <button onclick="app.fillExample('A ball is dropped from 50 meters')">Free Fall</button>
+            <button onclick="app.fillExample('A 10kg block slides at 15 m/s with friction 0.3')">Friction</button>
+          </div>
+
+          <button class="cta-btn" onclick="app.parseCustomProblem()">🤖 Parse with AI</button>
+        </div>
+
+        <div class="parsed-output" id="parsedOutput" style="display:none;">
+          <h3>Extracted Parameters</h3>
+          <div id="parsedParams"></div>
+          <button class="cta-btn" onclick="app.runCustomSimulation()">▶ Run Simulation</button>
         </div>
       </div>
     </div>

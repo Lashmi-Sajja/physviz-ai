@@ -41,8 +41,18 @@ class KIROApp {
   }
 
   showPage(pageId) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById(pageId).classList.add('active');
+    // Hide all pages
+    document.querySelectorAll('.page').forEach(p => {
+      p.classList.remove('active');
+      p.style.display = 'none';
+    });
+    
+    // Show selected page
+    const page = document.getElementById(pageId);
+    if (page) {
+      page.classList.add('active');
+      page.style.display = pageId === 'landing' ? 'flex' : 'block';
+    }
   }
 
   showModules() {
@@ -50,14 +60,159 @@ class KIROApp {
     this.updateProgressBar();
   }
 
+  showCustomInput() {
+    this.showPage('customInput');
+  }
+
+  fillExample(text) {
+    document.getElementById('customProblem').value = text;
+  }
+
+  async parseCustomProblem() {
+    const problem = document.getElementById('customProblem').value.trim();
+    if (!problem) {
+      alert('Please enter a physics problem!');
+      return;
+    }
+
+    // Show loading
+    const btn = event.target;
+    btn.textContent = '⏳ Parsing...';
+    btn.disabled = true;
+
+    try {
+      const response = await fetch('/api/parse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ problem })
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        this.displayParsedParams(data.data);
+        this.customParams = data.data;
+      } else {
+        alert('Failed to parse: ' + data.error);
+      }
+    } catch (error) {
+      alert('Error: ' + error.message);
+    } finally {
+      btn.textContent = '🤖 Parse with AI';
+      btn.disabled = false;
+    }
+  }
+
+  displayParsedParams(params) {
+    const output = document.getElementById('parsedOutput');
+    const paramsDiv = document.getElementById('parsedParams');
+    
+    let html = '';
+    for (const [key, value] of Object.entries(params)) {
+      html += `
+        <div class="param-item">
+          <span class="param-label">${key}:</span>
+          <span class="param-value">${value}</span>
+        </div>
+      `;
+    }
+    
+    paramsDiv.innerHTML = html;
+    output.style.display = 'block';
+  }
+
+  runCustomSimulation() {
+    if (!this.customParams) return;
+    
+    // Create a custom lesson from parsed params
+    const lesson = {
+      id: 'custom',
+      difficulty: 'custom',
+      title: 'Custom Problem',
+      problem: document.getElementById('customProblem').value,
+      params: this.customParams,
+      scenario: this.customParams.scenario || 'projectile_motion'
+    };
+    
+    this.loadLesson(lesson);
+  }
+
   showConcepts(module) {
     this.currentModule = module;
     this.showPage('concepts');
+    
+    // Update title based on module
+    const titles = {
+      kinematics: 'Kinematics - Motion & Velocity',
+      fluid: 'Fluid Mechanics - Liquids & Gases',
+      thermodynamics: 'Thermodynamics - Heat & Energy',
+      electromagnetism: 'Electromagnetism - Electricity & Magnetism'
+    };
+    document.getElementById('conceptTitle').textContent = titles[module] || 'Physics Concepts';
+    
+    // Update concepts based on module
+    const conceptList = document.querySelector('.concept-list');
+    conceptList.innerHTML = '';
+    
+    const concepts = this.getConceptsForModule(module);
+    concepts.forEach(concept => {
+      const card = document.createElement('div');
+      card.className = 'concept-card';
+      card.onclick = () => this.showLessons(concept.id);
+      card.innerHTML = `
+        <h3>${concept.title}</h3>
+        <p>${concept.description}</p>
+        <div class="difficulty-badges">
+          <span class="diff easy">Easy</span>
+          <span class="diff medium">Medium</span>
+          <span class="diff hard">Hard</span>
+        </div>
+      `;
+      conceptList.appendChild(card);
+    });
+  }
+  
+  getConceptsForModule(module) {
+    const modulesConcepts = {
+      kinematics: [
+        { id: 'projectile', title: 'Projectile Motion', description: 'Objects launched at angles' },
+        { id: 'freefall', title: 'Free Fall', description: 'Objects falling under gravity' },
+        { id: 'friction', title: 'Friction', description: 'Sliding with resistance' }
+      ],
+      fluid: [
+        { id: 'buoyancy', title: 'Buoyancy', description: 'Objects floating in fluids' },
+        { id: 'flow', title: 'Fluid Flow', description: 'Liquids in motion' },
+        { id: 'pressure', title: 'Pressure', description: 'Force per unit area' }
+      ],
+      thermodynamics: [
+        { id: 'heat_transfer', title: 'Heat Transfer', description: 'Energy flow between objects' },
+        { id: 'expansion', title: 'Thermal Expansion', description: 'Materials expanding with heat' },
+        { id: 'gas_laws', title: 'Gas Laws', description: 'Pressure, volume, temperature' }
+      ],
+      electromagnetism: [
+        { id: 'electric_field', title: 'Electric Fields', description: 'Charged particle interactions' },
+        { id: 'magnetic_field', title: 'Magnetic Fields', description: 'Magnetic force and motion' },
+        { id: 'circuits', title: 'Circuits', description: 'Current and resistance' }
+      ]
+    };
+    
+    return modulesConcepts[module] || [];
   }
 
   showLessons(concept) {
     this.currentConcept = concept;
     this.showPage('lessons');
+    
+    // Update title based on concept
+    const titles = {
+      projectile: 'Projectile Motion',
+      freefall: 'Free Fall',
+      friction: 'Friction'
+    };
+    const titleElement = document.querySelector('#lessons h1');
+    if (titleElement) {
+      titleElement.textContent = titles[concept] || 'Lessons';
+    }
     
     const lessons = this.getLessons(concept);
     const list = document.getElementById('lessonList');
@@ -114,6 +269,62 @@ class KIROApp {
         { id: 'fr_hard', difficulty: 'hard', title: 'High Friction', 
           problem: 'A 20kg block slides at 30 m/s with μ=0.5', 
           params: { mass: 20, velocity: 30, friction: 0.5 }, scenario: 'friction' }
+      ],
+      buoyancy: [
+        { id: 'buoy_easy', difficulty: 'easy', title: 'Simple Float', 
+          problem: 'A ball floats in water', 
+          params: { velocity: 10, angle: 45 }, scenario: 'projectile_motion' }
+      ],
+      flow: [
+        { id: 'flow_easy', difficulty: 'easy', title: 'Water Flow', 
+          problem: 'Water flows through a pipe', 
+          params: { velocity: 15, angle: 30 }, scenario: 'projectile_motion' }
+      ],
+      pressure: [
+        { id: 'press_easy', difficulty: 'easy', title: 'Pressure Demo', 
+          problem: 'Pressure in a container', 
+          params: { height: 30 }, scenario: 'free_fall' }
+      ],
+      heat_transfer: [
+        { id: 'heat_easy', difficulty: 'easy', title: 'Heat Flow', 
+          problem: 'Heat transfers between objects', 
+          params: { velocity: 20, angle: 45 }, scenario: 'projectile_motion' }
+      ],
+      expansion: [
+        { id: 'exp_easy', difficulty: 'easy', title: 'Thermal Expansion', 
+          problem: 'Material expands with heat', 
+          params: { height: 40 }, scenario: 'free_fall' }
+      ],
+      gas_laws: [
+        { id: 'gas_easy', difficulty: 'easy', title: 'Gas Behavior', 
+          problem: 'Gas pressure and volume', 
+          params: { mass: 10, velocity: 15, friction: 0.2 }, scenario: 'friction' }
+      ],
+      electric_field: [
+        { id: 'elec_easy', difficulty: 'easy', title: 'Electric Force', 
+          problem: 'Charged particles interact', 
+          params: { velocity: 25, angle: 60 }, scenario: 'projectile_motion' }
+      ],
+      magnetic_field: [
+        { id: 'mag_easy', difficulty: 'easy', title: 'Magnetic Force', 
+          problem: 'Magnetic field affects motion', 
+          params: { velocity: 20, angle: 30 }, scenario: 'projectile_motion' }
+      ],
+      circuits: [
+        { id: 'circ_easy', difficulty: 'easy', title: 'Simple Circuit', 
+          problem: 'Current flows through circuit', 
+          params: { height: 50 }, scenario: 'free_fall' }
+      ],
+      other: [
+        { id: 'oth_easy', difficulty: 'easy', title: 'Simple Motion', 
+          problem: 'A ball is thrown at 20° with speed 12 m/s', 
+          params: { velocity: 12, angle: 20 }, scenario: 'projectile_motion' },
+        { id: 'oth_med', difficulty: 'medium', title: 'Mixed Scenario', 
+          problem: 'A ball is dropped from 30 meters', 
+          params: { height: 30 }, scenario: 'free_fall' },
+        { id: 'oth_hard', difficulty: 'hard', title: 'Complex Motion', 
+          problem: 'A 15kg block slides at 25 m/s with μ=0.4', 
+          params: { mass: 15, velocity: 25, friction: 0.4 }, scenario: 'friction' }
       ]
     };
     return lessons[concept] || [];
@@ -365,4 +576,9 @@ class KIROApp {
   }
 }
 
-new KIROApp();
+// Initialize app when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => new KIROApp());
+} else {
+  new KIROApp();
+}

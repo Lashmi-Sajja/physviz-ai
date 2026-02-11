@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KIRO - AI Physics Learning Platform</title>
+  <title>PhysViz AI - Physics Learning Platform</title>
   <link rel="stylesheet" href="kiro-styles.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
 </head>
@@ -11,7 +11,7 @@
   <!-- Landing Page -->
   <section id="landing" class="page active">
     <div class="hero">
-      <div class="logo">KIRO</div>
+      <div class="logo">PhysViz AI</div>
       <h1>AI-Powered Physics Learning Platform</h1>
       <p class="tagline">Transform Physics Problems into Interactive Visual Experiences</p>
       <button class="cta-btn" onclick="app.showModules()">Start Learning</button>
@@ -22,7 +22,7 @@
   <!-- Physics Modules -->
   <section id="modules" class="page">
     <nav class="top-nav">
-      <div class="logo-small">KIRO</div>
+      <div class="logo-small">PhysViz AI</div>
       <div class="progress-indicator">
         <span id="progressText">0% Complete</span>
         <div class="progress-bar"><div id="progressFill"></div></div>
@@ -105,120 +105,78 @@
     </div>
   </section>
 
-  <!-- Concepts (Lessons) -->
+  <!-- Concepts (Direct to Simulation) -->
   <section id="concepts" class="page">
     <nav class="top-nav">
       <button class="back-btn" onclick="app.showModules()">← Back</button>
-      <div class="logo-small">KIRO</div>
+      <div class="logo-small">PhysViz AI</div>
     </nav>
 
     <div class="content">
       <h1 id="conceptTitle">Kinematics</h1>
       <div class="concept-list">
-        <div class="concept-card" onclick="app.showLessons('projectile')">
+        <div class="concept-card" onclick="app.loadConceptDirect('projectile')">
           <h3>Projectile Motion</h3>
           <p>Objects launched at angles</p>
-          <div class="difficulty-badges">
-            <span class="diff easy">Easy</span>
-            <span class="diff medium">Medium</span>
-            <span class="diff hard">Hard</span>
-          </div>
         </div>
 
-        <div class="concept-card" onclick="app.showLessons('freefall')">
+        <div class="concept-card" onclick="app.loadConceptDirect('freefall')">
           <h3>Free Fall</h3>
           <p>Objects falling under gravity</p>
-          <div class="difficulty-badges">
-            <span class="diff easy">Easy</span>
-            <span class="diff medium">Medium</span>
-            <span class="diff hard">Hard</span>
-          </div>
         </div>
 
-        <div class="concept-card" onclick="app.showLessons('friction')">
+        <div class="concept-card" onclick="app.loadConceptDirect('friction')">
           <h3>Friction</h3>
           <p>Sliding with resistance</p>
-          <div class="difficulty-badges">
-            <span class="diff easy">Easy</span>
-            <span class="diff medium">Medium</span>
-            <span class="diff hard">Hard</span>
-          </div>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- Lessons (Difficulty Levels) -->
-  <section id="lessons" class="page">
-    <nav class="top-nav">
-      <button class="back-btn" onclick="app.showConcepts('kinematics')">← Back</button>
-      <div class="logo-small">KIRO</div>
-    </nav>
-
-    <div class="content">
-      <h1 id="lessonTitle">Projectile Motion</h1>
-      <div class="lesson-list" id="lessonList"></div>
     </div>
   </section>
 
   <!-- Simulation -->
   <section id="simulation" class="page">
     <nav class="top-nav">
-      <button class="back-btn" onclick="app.backToLessons()">← Back</button>
-      <div class="logo-small">KIRO</div>
-      <button class="test-btn" onclick="app.showTest()">Take Test</button>
+      <button class="back-btn" onclick="app.showConcepts('kinematics')">← Back</button>
+      <div class="logo-small">PhysViz AI</div>
     </nav>
 
     <div class="sim-layout">
-      <!-- Left: Problem Input -->
+      <!-- Left: Canvas -->
       <div class="sim-left">
-        <h3>Problem Statement</h3>
-        <div id="problemDisplay" class="problem-box"></div>
-        
-        <h3>Parameters</h3>
-        <div id="paramControls" class="param-controls"></div>
-        
-        <button class="btn-primary" onclick="app.startSimulation()">Start Simulation</button>
-        <button class="btn-secondary" onclick="app.resetSimulation()">Reset</button>
-      </div>
-
-      <!-- Center: Canvas -->
-      <div class="sim-center">
+        <h3>Simulation</h3>
         <div id="simCanvas"></div>
         <div class="sim-controls">
           <button id="playPauseBtn" onclick="app.togglePlay()">Play</button>
+          <button onclick="app.resetSimulation()">Reset</button>
           <span id="timeDisplay">Time: 0.00s</span>
+        </div>
+        
+        <!-- Graph below canvas -->
+        <h3>Physics Graph</h3>
+        <canvas id="graphCanvas" width="600" height="200"></canvas>
+        <div class="graph-info">
+          <p><strong>Concepts:</strong> projectile_motion, energy_conservation, kinematics</p>
+          <p><strong>Forces:</strong> F = m × g</p>
         </div>
       </div>
 
-      <!-- Right: Insights -->
+      <!-- Right: Parameters and What-Ifs -->
       <div class="sim-right">
-        <h3>Insights</h3>
-        <div id="insightsList"></div>
+        <div class="param-section glow-hover">
+          <h3>Parameters</h3>
+          <div id="paramControls" class="param-controls"></div>
+        </div>
         
-        <h3>What-If</h3>
-        <div id="whatIfList"></div>
+        <div class="whatif-section glow-hover">
+          <h3>Predictive Scenarios</h3>
+          <div id="whatIfList"></div>
+        </div>
+        
+        <div class="insights-section">
+          <h3>Concept Insights</h3>
+          <div id="insightsList"></div>
+        </div>
       </div>
-    </div>
-
-    <!-- Bottom: Graph -->
-    <div class="graph-section">
-      <h3>Height vs Time</h3>
-      <canvas id="graphCanvas" width="800" height="200"></canvas>
-    </div>
-  </section>
-
-  <!-- Test/Quiz -->
-  <section id="test" class="page">
-    <nav class="top-nav">
-      <button class="back-btn" onclick="app.backToSimulation()">← Back</button>
-      <div class="logo-small">KIRO</div>
-    </nav>
-
-    <div class="content">
-      <h1>Concept Test</h1>
-      <div id="quizContainer" class="quiz-container"></div>
-      <button class="btn-primary" onclick="app.submitTest()">Submit Test</button>
     </div>
   </section>
 

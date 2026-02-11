@@ -1,8 +1,10 @@
 import { P5PhysicsRenderer } from './core/P5PhysicsRenderer.js';
+import { GraphRenderer } from './core/GraphRenderer.js';
 
 class KIROApp {
   constructor() {
     this.renderer = new P5PhysicsRenderer();
+    this.graph = null;
     this.currentModule = null;
     this.currentConcept = null;
     this.currentLesson = null;
@@ -31,6 +33,7 @@ class KIROApp {
   }
 
   showPage(pageId) {
+    console.log('[DEBUG] showPage called:', pageId);
     // Hide all pages
     document.querySelectorAll('.page').forEach(p => {
       p.classList.remove('active');
@@ -39,13 +42,18 @@ class KIROApp {
     
     // Show selected page
     const page = document.getElementById(pageId);
+    console.log('[DEBUG] Page element found:', !!page);
     if (page) {
       page.classList.add('active');
       page.style.display = pageId === 'landing' ? 'flex' : 'block';
+      console.log('[DEBUG] Page displayed successfully');
+    } else {
+      console.error('[DEBUG] Page not found:', pageId);
     }
   }
 
   showModules() {
+    console.log('[DEBUG] showModules called');
     this.showPage('modules');
     this.updateProgressBar();
   }
@@ -190,39 +198,16 @@ class KIROApp {
   }
 
   showLessons(concept) {
+    // Skip lessons page, go directly to simulation
+    this.loadConceptDirect(concept);
+  }
+
+  loadConceptDirect(concept) {
     this.currentConcept = concept;
-    this.showPage('lessons');
-    
-    // Update title based on concept
-    const titles = {
-      projectile: 'Projectile Motion',
-      freefall: 'Free Fall',
-      friction: 'Friction'
-    };
-    const titleElement = document.querySelector('#lessons h1');
-    if (titleElement) {
-      titleElement.textContent = titles[concept] || 'Lessons';
-    }
-    
+    // Load medium difficulty by default
     const lessons = this.getLessons(concept);
-    const list = document.getElementById('lessonList');
-    list.innerHTML = '';
-    
-    lessons.forEach(lesson => {
-      const div = document.createElement('div');
-      div.className = 'lesson-item';
-      if (this.progress[lesson.id]) div.classList.add('completed');
-      
-      div.innerHTML = `
-        <div>
-          <h3>${lesson.title}</h3>
-          <p>${lesson.problem}</p>
-        </div>
-        <span class="diff ${lesson.difficulty}">${lesson.difficulty}</span>
-      `;
-      div.onclick = () => this.loadLesson(lesson);
-      list.appendChild(div);
-    });
+    const mediumLesson = lessons.find(l => l.difficulty === 'medium') || lessons[0];
+    this.loadLesson(mediumLesson);
   }
 
   getLessons(concept) {
@@ -324,11 +309,97 @@ class KIROApp {
     this.currentLesson = lesson;
     this.showPage('simulation');
     
-    document.getElementById('problemDisplay').textContent = lesson.problem;
+    // Initialize graph
+    if (!this.graph) {
+      this.graph = new GraphRenderer('graphCanvas');
+    }
+    this.graph.clear();
     
     // Initialize p5.js renderer
     this.renderer.init('simCanvas', lesson.params, lesson.scenario);
     this.setupParameters(lesson.scenario, lesson.params);
+    
+    // Load what-if scenarios
+    this.loadWhatIfScenarios(lesson.scenario);
+    
+    // Load insights
+    this.loadInsights(lesson.scenario);
+  }
+
+  loadWhatIfScenarios(scenario) {
+    const whatIfList = document.getElementById('whatIfList');
+    const scenarios = {
+      projectile_motion: `
+        <div class="whatif-card">
+          <strong>What if speed doubles?</strong>
+          <ul>
+            <li>• max height change: 4x increase (quadratic)</li>
+            <li>• flight time change: 2x increase (linear)</li>
+            <li>• energy change: 4x increase</li>
+            <li>• formula: h ∝ v²</li>
+          </ul>
+        </div>
+        <div class="whatif-card">
+          <strong>What if mass doubles?</strong>
+          <ul>
+            <li>• max height change: No change</li>
+            <li>• flight time change: No change</li>
+            <li>• energy change: 2x increase</li>
+            <li>• formula: h independent of mass</li>
+          </ul>
+        </div>
+      `,
+      free_fall: `
+        <div class="whatif-card">
+          <strong>What if height doubles?</strong>
+          <ul>
+            <li>• fall time change: √2x increase</li>
+            <li>• final velocity: √2x increase</li>
+            <li>• formula: t = √(2h/g)</li>
+          </ul>
+        </div>
+      `,
+      friction: `
+        <div class="whatif-card">
+          <strong>What if friction doubles?</strong>
+          <ul>
+            <li>• stopping distance: 0.5x (halves)</li>
+            <li>• stopping time: 0.5x (halves)</li>
+            <li>• formula: d ∝ 1/μ</li>
+          </ul>
+        </div>
+      `
+    };
+    whatIfList.innerHTML = scenarios[scenario] || '';
+  }
+
+  loadInsights(scenario) {
+    const insightsList = document.getElementById('insightsList');
+    const insights = {
+      projectile_motion: `
+        <div class="insight-card">
+          <strong>⚡ Energy Conserved!</strong><br>
+          Total energy stays constant. KE converts to PE and back.
+        </div>
+        <div class="insight-card">
+          <strong>💡 Peak Reached!</strong><br>
+          Velocity becomes zero at the highest point - a key characteristic of projectile motion.
+        </div>
+      `,
+      free_fall: `
+        <div class="insight-card">
+          <strong>⚡ Acceleration Constant!</strong><br>
+          All objects fall at 9.8 m/s² regardless of mass.
+        </div>
+      `,
+      friction: `
+        <div class="insight-card">
+          <strong>⚡ Energy Lost!</strong><br>
+          Kinetic energy converts to heat due to friction.
+        </div>
+      `
+    };
+    insightsList.innerHTML = insights[scenario] || '';
   }
 
   setupParameters(scenario, params) {
@@ -378,31 +449,30 @@ class KIROApp {
   }
 
   startSimulation() {
-    this.isPlaying = true;
-    this.graphData = [];
-    document.getElementById('insightsList').innerHTML = '';
+    if (!this.graph) {
+      this.graph = new GraphRenderer('graphCanvas');
+    }
+    this.graph.clear();
+    this.renderer.play();
     document.getElementById('playPauseBtn').textContent = 'Pause';
-    this.animate();
+    this.animateGraph();
   }
 
-  animate() {
-    if (!this.isPlaying) return;
+  animateGraph() {
+    if (!this.renderer.isRunning) {
+      setTimeout(() => this.animateGraph(), 100);
+      return;
+    }
     
-    this.manager.update(0.016);
+    const height = this.renderer.getCurrentHeight();
+    const time = this.renderer.getTime();
+    this.graph.addDataPoint(time, height);
     
-    const canvas = document.getElementById('simCanvas');
-    const ctx = canvas.getContext('2d');
-    this.manager.render(ctx);
+    document.getElementById('timeDisplay').textContent = `Time: ${time.toFixed(2)}s`;
     
-    this.updateInsights();
-    this.updateGraph();
-    document.getElementById('timeDisplay').textContent = 
-      `Time: ${this.manager.currentScenario.time.toFixed(2)}s`;
-    
-    if (!this.manager.currentScenario.isComplete) {
-      requestAnimationFrame(() => this.animate());
+    if (this.renderer.isRunning) {
+      requestAnimationFrame(() => this.animateGraph());
     } else {
-      this.isPlaying = false;
       this.markComplete();
     }
   }
@@ -472,22 +542,22 @@ class KIROApp {
   }
 
   togglePlay() {
-    this.isPlaying = !this.isPlaying;
-    document.getElementById('playPauseBtn').textContent = this.isPlaying ? 'Pause' : 'Play';
-    
-    if (this.isPlaying) {
-      this.renderer.play();
-    } else {
+    if (this.renderer.isRunning) {
       this.renderer.pause();
+      document.getElementById('playPauseBtn').textContent = 'Play';
+    } else {
+      this.renderer.play();
+      document.getElementById('playPauseBtn').textContent = 'Pause';
+      this.animateGraph();
     }
   }
 
   resetSimulation() {
-    this.isPlaying = false;
-    this.graphData = [];
-    document.getElementById('insightsList').innerHTML = '';
-    document.getElementById('playPauseBtn').textContent = 'Play';
     this.renderer.reset();
+    if (this.graph) {
+      this.graph.clear();
+    }
+    document.getElementById('playPauseBtn').textContent = 'Play';
   }
 
   markComplete() {
@@ -564,7 +634,9 @@ class KIROApp {
 
 // Initialize app when DOM is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new KIROApp());
+  document.addEventListener('DOMContentLoaded', () => {
+    window.app = new KIROApp();
+  });
 } else {
-  new KIROApp();
+  window.app = new KIROApp();
 }

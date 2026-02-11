@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>KIRO Test - Simulation Check</title>
+  <style>
+    body { background: #0a0e27; color: #fff; font-family: sans-serif; padding: 20px; }
+    canvas { border: 3px solid #00ff41; margin: 10px 0; }
+    button { padding: 10px 20px; margin: 5px; background: #00f5ff; border: none; border-radius: 5px; cursor: pointer; }
+    .info { background: rgba(0,245,255,0.1); padding: 15px; margin: 10px 0; border-radius: 8px; }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+</head>
+<body>
+  <h1>🧪 KIRO Simulation Test</h1>
+  
+  <div class="info">
+    <h3>Test Status:</h3>
+    <div id="status">Loading...</div>
+  </div>
+
+  <h3>Simulation Canvas:</h3>
+  <div id="simCanvas"></div>
+
+  <h3>Graph Canvas:</h3>
+  <canvas id="graphCanvas" width="800" height="200"></canvas>
+
+  <div>
+    <button onclick="testProjectile()">Test Projectile</button>
+    <button onclick="testGraph()">Test Graph</button>
+    <button onclick="window.location.href='/'">Back to KIRO</button>
+  </div>
+
+  <script type="module">
+    import { P5PhysicsRenderer } from './core/P5PhysicsRenderer.js';
+    import { GraphRenderer } from './core/GraphRenderer.js';
+
+    window.renderer = new P5PhysicsRenderer();
+    window.graph = new GraphRenderer('graphCanvas');
+
+    document.getElementById('status').innerHTML = `
+      ✅ P5PhysicsRenderer loaded<br>
+      ✅ GraphRenderer loaded<br>
+      ✅ Ready to test
+    `;
+
+    window.testProjectile = () => {
+      const params = { velocity: 20, angle: 45 };
+      window.renderer.init('simCanvas', params, 'projectile_motion');
+      window.renderer.play();
+      
+      // Update graph
+      let count = 0;
+      const interval = setInterval(() => {
+        if (window.renderer.isRunning && count < 100) {
+          const height = window.renderer.getCurrentHeight();
+          const time = window.renderer.getTime();
+          window.graph.addDataPoint(time, height);
+          count++;
+        } else {
+          clearInterval(interval);
+        }
+      }, 50);
+      
+      document.getElementById('status').innerHTML = '🚀 Projectile simulation running...';
+    };
+
+    window.testGraph = () => {
+      window.graph.clear();
+      // Add test data
+      for (let i = 0; i <= 50; i++) {
+        const t = i * 0.1;
+        const h = 20 * t - 4.9 * t * t;
+        if (h >= 0) window.graph.addDataPoint(t, h);
+      }
+      document.getElementById('status').innerHTML = '📊 Test graph rendered';
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Debug</title>
+  <style>
+    body { background: #000; color: #0f0; font-family: monospace; padding: 20px; }
+    .error { color: #f00; }
+    .success { color: #0f0; }
+  </style>
+</head>
+<body>
+  <h1>Debug Console</h1>
+  <div id="output"></div>
+  
+  <script type="module">
+    const output = document.getElementById('output');
+    
+    function log(msg, isError = false) {
+      const div = document.createElement('div');
+      div.className = isError ? 'error' : 'success';
+      div.textContent = msg;
+      output.appendChild(div);
+    }
+    
+    try {
+      log('1. Loading P5PhysicsRenderer...');
+      const { P5PhysicsRenderer } = await import('./core/P5PhysicsRenderer.js');
+      log('✓ P5PhysicsRenderer loaded');
+      
+      log('2. Loading GraphRenderer...');
+      const { GraphRenderer } = await import('./core/GraphRenderer.js');
+      log('✓ GraphRenderer loaded');
+      
+      log('3. Loading KIROApp...');
+      const module = await import('./kiro-app.js');
+      log('✓ KIROApp module loaded');
+      
+      log('4. Checking window.app...');
+      if (window.app) {
+        log('✓ window.app exists');
+        log('5. Testing showModules...');
+        if (typeof window.app.showModules === 'function') {
+          log('✓ showModules is a function');
+          log('6. Calling showModules...');
+          window.app.showModules();
+          log('✓ showModules called successfully');
+        } else {
+          log('✗ showModules is not a function', true);
+        }
+      } else {
+        log('✗ window.app does not exist', true);
+      }
+    } catch (error) {
+      log('✗ ERROR: ' + error.message, true);
+      log('Stack: ' + error.stack, true);
+    }
+  </script>
+</body>
+</html>

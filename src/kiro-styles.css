@@ -688,3 +688,129 @@ button.secondary:hover {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* Updated Layout */
+.sim-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  padding: 20px;
+}
+
+.sim-left h3, .sim-right h3 {
+  font-size: 1.4em;
+  margin-bottom: 15px;
+}
+
+/* Glow Hover Effects */
+.glow-hover {
+  transition: all 0.3s ease;
+  padding: 20px;
+  border-radius: 12px;
+  background: rgba(0, 245, 255, 0.05);
+  border: 1px solid rgba(0, 245, 255, 0.2);
+  margin-bottom: 20px;
+}
+
+.glow-hover:hover {
+  background: rgba(0, 245, 255, 0.15);
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Larger Fonts */
+body {
+  font-size: 16px;
+}
+
+h1 {
+  font-size: 3em;
+}
+
+h2 {
+  font-size: 2.2em;
+}
+
+h3 {
+  font-size: 1.6em;
+}
+
+p, .param-item label {
+  font-size: 1.1em;
+}
+
+/* What-If Styling */
+#whatIfList {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.whatif-card {
+  background: rgba(255, 200, 0, 0.1);
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 3px solid #ffc800;
+}
+
+.whatif-card strong {
+  color: #ffc800;
+  font-size: 1.2em;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.whatif-card ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 10px 0;
+}
+
+.whatif-card li {
+  padding: 5px 0;
+  font-size: 1em;
+}
+
+/* Insights Styling */
+.insight-card {
+  background: rgba(0, 255, 100, 0.1);
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 3px solid #00ff64;
+  margin-bottom: 10px;
+}
+
+.insight-card strong {
+  color: #00ff64;
+  font-size: 1.1em;
+}
+
+/* Graph Info */
+.graph-info {
+  background: rgba(0, 245, 255, 0.1);
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 10px;
+  font-size: 1em;
+}
+
+.graph-info p {
+  margin: 5px 0;
+}
+
+.graph-info strong {
+  color: #00f5ff;
+}
+
+/* Sections */
+.param-section, .whatif-section, .insights-section {
+  margin-bottom: 25px;
+}
+
+.insights-section {
+  background: rgba(0, 255, 100, 0.05);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 255, 100, 0.2);
+}

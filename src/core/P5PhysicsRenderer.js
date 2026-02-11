@@ -54,33 +54,49 @@ export class P5PhysicsRenderer {
   setupProjectile(p, params) {
     const v0 = params.velocity || 20;
     const angle = (params.angle || 45) * Math.PI / 180;
+    const g = 9.8;
+    
+    // Calculate trajectory parameters
+    const vx = v0 * Math.cos(angle);
+    const vy = v0 * Math.sin(angle);
+    const maxHeight = (vy * vy) / (2 * g);
+    const range = (v0 * v0 * Math.sin(2 * angle)) / g;
+    const flightTime = (2 * vy) / g;
     
     this.objects.push({
-      type: 'ball',
+      type: 'projectile',
+      x0: 50,
+      y0: 350,
       x: 50,
       y: 350,
-      vx: v0 * Math.cos(angle),
-      vy: -v0 * Math.sin(angle),
+      vx: vx,
+      vy: vy,
+      v0: v0,
+      angle: angle,
       radius: 10,
       color: [255, 100, 100],
-      trail: []
+      trail: [],
+      maxHeight: maxHeight,
+      range: range,
+      flightTime: flightTime
     });
   }
 
   setupFreeFall(p, params) {
     const h0 = params.height || 50;
-    const scale = 3;
+    const scale = 5; // pixels per meter
+    const startY = 350 - (h0 * scale); // Calculate starting y position from height
     
     this.objects.push({
       type: 'ball',
       x: 300,
-      y: 50,
+      y: startY,
       vx: 0,
       vy: 0,
       radius: 10,
       color: [100, 100, 255],
       initialHeight: h0,
-      scale: scale
+      trail: []
     });
   }
 
@@ -142,52 +158,71 @@ export class P5PhysicsRenderer {
 
   updatePhysics(p, dt) {
     const g = 9.8;
-    const scale = 5;
 
     this.objects.forEach(obj => {
-      if (obj.type === 'ball') {
-        // Projectile/Free fall physics
-        obj.x += obj.vx * scale * dt * 60;
-        obj.y += obj.vy * scale * dt * 60;
-        obj.vy += g * scale * dt * 60;
-
+      if (obj.type === 'projectile') {
+        // Use kinematic equations for accurate trajectory
+        const t = this.t;
+        const scale = 5; // pixels per meter
+        
+        // Calculate position using kinematic equations
+        const x_meters = obj.vx * t;
+        const y_meters = obj.vy * t - 0.5 * g * t * t;
+        
+        obj.x = obj.x0 + x_meters * scale;
+        obj.y = obj.y0 - y_meters * scale; // Subtract because canvas y increases downward
+        
+        // Trail
+        if (!obj.trail) obj.trail = [];
+        obj.trail.push({ x: obj.x, y: obj.y });
+        if (obj.trail.length > 100) obj.trail.shift();
+        
+        // Ground collision
+        if (obj.y >= obj.y0) {
+          obj.y = obj.y0;
+          this.isRunning = false; // Stop when hits ground
+        }
+        
+      } else if (obj.type === 'ball') {
+        // Free fall physics
+        const scale = 5;
+        obj.vy += g * dt;
+        obj.y += obj.vy * scale * dt;
+        
         // Trail
         if (!obj.trail) obj.trail = [];
         obj.trail.push({ x: obj.x, y: obj.y });
         if (obj.trail.length > 50) obj.trail.shift();
-
+        
         // Ground collision
         if (obj.y >= 350) {
           obj.y = 350;
-          obj.vy = -obj.vy * 0.6; // Bounce with energy loss
-          obj.vx *= 0.9;
-          
-          if (Math.abs(obj.vy) < 1) {
-            obj.vy = 0;
-            obj.vx = 0;
-          }
+          obj.vy = 0;
+          this.isRunning = false;
         }
-
-        // Wall collision
-        if (obj.x >= p.width - obj.radius || obj.x <= obj.radius) {
-          obj.vx = -obj.vx * 0.8;
-        }
+        
       } else if (obj.type === 'block') {
         // Friction physics
         const frictionForce = obj.friction * g;
         const deceleration = frictionForce;
+        const scale = 5;
         
         if (obj.vx > 0) {
-          obj.vx -= deceleration * dt * 60;
+          obj.vx -= deceleration * dt;
           if (obj.vx < 0) obj.vx = 0;
         }
         
-        obj.x += obj.vx * scale * dt * 60;
+        obj.x += obj.vx * scale * dt;
         
         // Stop at wall
         if (obj.x >= p.width - obj.width) {
           obj.x = p.width - obj.width;
           obj.vx = 0;
+          this.isRunning = false;
+        }
+        
+        if (obj.vx === 0) {
+          this.isRunning = false;
         }
       }
     });
@@ -195,7 +230,45 @@ export class P5PhysicsRenderer {
 
   drawObjects(p) {
     this.objects.forEach(obj => {
-      if (obj.type === 'ball') {
+      if (obj.type === 'projectile') {
+        // Draw full trajectory path
+        if (obj.range && obj.maxHeight) {
+          const scale = 5;
+          p.stroke(255, 100, 100, 50);
+          p.strokeWeight(2);
+          p.noFill();
+          p.beginShape();
+          
+          for (let t = 0; t <= obj.flightTime; t += 0.05) {
+            const x_m = obj.vx * t;
+            const y_m = obj.vy * t - 0.5 * 9.8 * t * t;
+            const px = obj.x0 + x_m * scale;
+            const py = obj.y0 - y_m * scale;
+            p.vertex(px, py);
+          }
+          p.endShape();
+        }
+        
+        // Draw trail
+        p.noFill();
+        p.stroke(obj.color[0], obj.color[1], obj.color[2], 150);
+        p.strokeWeight(3);
+        p.beginShape();
+        obj.trail.forEach(point => {
+          p.vertex(point.x, point.y);
+        });
+        p.endShape();
+
+        // Draw ball
+        p.fill(obj.color[0], obj.color[1], obj.color[2]);
+        p.noStroke();
+        p.circle(obj.x, obj.y, obj.radius * 2);
+        
+        // Glow effect
+        p.fill(obj.color[0], obj.color[1], obj.color[2], 50);
+        p.circle(obj.x, obj.y, obj.radius * 3);
+        
+      } else if (obj.type === 'ball') {
         // Draw trail
         p.noFill();
         p.stroke(obj.color[0], obj.color[1], obj.color[2], 100);
@@ -214,6 +287,7 @@ export class P5PhysicsRenderer {
         // Glow effect
         p.fill(obj.color[0], obj.color[1], obj.color[2], 50);
         p.circle(obj.x, obj.y, obj.radius * 3);
+        
       } else if (obj.type === 'block') {
         // Draw block
         p.fill(obj.color[0], obj.color[1], obj.color[2]);
@@ -240,12 +314,22 @@ export class P5PhysicsRenderer {
     
     if (this.objects[0]) {
       const obj = this.objects[0];
-      const height = (360 - obj.y) / 5;
-      p.text(`Height: ${Math.max(0, height).toFixed(1)}m`, 10, 40);
       
-      if (obj.vx !== undefined) {
-        const speed = Math.sqrt(obj.vx * obj.vx + obj.vy * obj.vy) / 5;
-        p.text(`Speed: ${speed.toFixed(1)}m/s`, 10, 60);
+      if (obj.type === 'projectile') {
+        const height = (obj.y0 - obj.y) / 5;
+        const distance = (obj.x - obj.x0) / 5;
+        p.text(`Height: ${Math.max(0, height).toFixed(1)}m`, 10, 40);
+        p.text(`Distance: ${distance.toFixed(1)}m`, 10, 60);
+        p.text(`Max Height: ${obj.maxHeight.toFixed(1)}m`, 10, 80);
+        p.text(`Range: ${obj.range.toFixed(1)}m`, 10, 100);
+      } else if (obj.type === 'ball') {
+        const height = (360 - obj.y) / 5;
+        p.text(`Height: ${Math.max(0, height).toFixed(1)}m`, 10, 40);
+        p.text(`Velocity: ${obj.vy.toFixed(1)}m/s`, 10, 60);
+      } else if (obj.type === 'block') {
+        const distance = (obj.x - 50) / 5;
+        p.text(`Distance: ${distance.toFixed(1)}m`, 10, 40);
+        p.text(`Velocity: ${obj.vx.toFixed(1)}m/s`, 10, 60);
       }
     }
   }
@@ -276,5 +360,21 @@ export class P5PhysicsRenderer {
       this.sketch.remove();
       this.sketch = null;
     }
+  }
+
+  getCurrentHeight() {
+    if (this.objects[0]) {
+      const obj = this.objects[0];
+      if (obj.type === 'projectile') {
+        return Math.max(0, (obj.y0 - obj.y) / 5);
+      } else if (obj.type === 'ball') {
+        return Math.max(0, (360 - obj.y) / 5);
+      }
+    }
+    return 0;
+  }
+
+  getTime() {
+    return this.t;
   }
 }

@@ -319,6 +319,9 @@ class KIROApp {
     this.renderer.init('simCanvas', lesson.params, lesson.scenario);
     this.setupParameters(lesson.scenario, lesson.params);
     
+    // Initialize play button
+    document.getElementById('playPauseBtn').textContent = 'Play';
+    
     // Load what-if scenarios
     this.loadWhatIfScenarios(lesson.scenario);
     

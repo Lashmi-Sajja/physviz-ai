@@ -262,9 +262,10 @@ body::after {
 /* Module Grid */
 .module-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(2, minmax(250px, 400px));
   gap: 30px;
   margin-top: 30px;
+  justify-content: center;
 }
 
 .module-card {

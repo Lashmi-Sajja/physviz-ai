@@ -57,6 +57,9 @@ export class P5PhysicsRenderer {
       case 'rolling_ball':
         this.setupRollingBall(p, params);
         break;
+      case 'circular_motion':
+        this.setupCircularMotion(p, params);
+        break;
     }
   }
 
@@ -176,6 +179,20 @@ export class P5PhysicsRenderer {
       radius: radius,
       planeLength: planeLength,
       g: 9.8
+    });
+  }
+
+  setupCircularMotion(p, params) {
+    const radius = params.radius || 5;
+    const angularVelocity = params.angularVelocity || 1;
+    const mass = params.mass || 2;
+    
+    this.objects.push({
+      type: 'circular',
+      radius: radius,
+      angularVelocity: angularVelocity,
+      mass: mass,
+      angle: 0
     });
   }
 
@@ -481,6 +498,53 @@ export class P5PhysicsRenderer {
         p.text(`Distance: ${x.toFixed(2)}m`, 10, 40);
         p.text(`Velocity: ${(a * this.t).toFixed(2)}m/s`, 10, 60);
         p.text(`Acceleration: ${a.toFixed(2)}m/s²`, 10, 80);
+        
+      } else if (obj.type === 'circular') {
+        const angle = obj.angularVelocity * this.t;
+        const centerX = 300;
+        const centerY = 200;
+        const scale = 30;
+        
+        // Draw circular path
+        p.stroke(100, 100, 100);
+        p.strokeWeight(2);
+        p.noFill();
+        p.circle(centerX, centerY, obj.radius * scale * 2);
+        
+        // Draw center
+        p.fill(255, 255, 255);
+        p.noStroke();
+        p.circle(centerX, centerY, 5);
+        
+        // Draw object
+        const objX = centerX + obj.radius * scale * Math.cos(angle);
+        const objY = centerY + obj.radius * scale * Math.sin(angle);
+        p.fill(168, 85, 247);
+        p.circle(objX, objY, 20);
+        
+        // Draw velocity vector
+        p.stroke(251, 191, 36);
+        p.strokeWeight(3);
+        const vx = -Math.sin(angle);
+        const vy = Math.cos(angle);
+        p.line(objX, objY, objX + vx * 40, objY + vy * 40);
+        
+        // Draw centripetal acceleration
+        p.stroke(239, 68, 68);
+        const ax = -Math.cos(angle);
+        const ay = -Math.sin(angle);
+        p.line(objX, objY, objX + ax * 30, objY + ay * 30);
+        
+        // Display info
+        p.fill(0, 255, 65);
+        p.noStroke();
+        p.textSize(12);
+        p.textAlign(p.LEFT);
+        const v = obj.radius * obj.angularVelocity;
+        const ac = obj.radius * obj.angularVelocity * obj.angularVelocity;
+        p.text(`Linear Velocity: ${v.toFixed(2)}m/s`, 10, 40);
+        p.text(`Angular Velocity: ${obj.angularVelocity.toFixed(2)}rad/s`, 10, 60);
+        p.text(`Centripetal Acc: ${ac.toFixed(2)}m/s²`, 10, 80);
       }
     });
   }

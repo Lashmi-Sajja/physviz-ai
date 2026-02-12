@@ -241,6 +241,11 @@ class KIROApp {
           problem: 'A 5kg ball rolls down a 30° incline', 
           params: { mass: 5, angle: 30, radius: 0.5, planeLength: 10 }, scenario: 'rolling_ball' }
       ],
+      circular: [
+        { id: 'circular', title: 'Circular Motion', 
+          problem: 'A 2kg object moves in a 5m radius circle at 1 rad/s', 
+          params: { radius: 5, angularVelocity: 1, mass: 2 }, scenario: 'circular_motion' }
+      ],
       buoyancy: [
         { id: 'buoy_easy', difficulty: 'easy', title: 'Simple Float', 
           problem: 'A ball floats in water', 
@@ -396,6 +401,16 @@ class KIROApp {
             <li>• formula: a = g·sinθ / (1 + I/mr²)</li>
           </ul>
         </div>
+      `,
+      circular_motion: `
+        <div class="whatif-card">
+          <strong>What if angular velocity doubles?</strong>
+          <ul>
+            <li>• centripetal acceleration: 4x increase</li>
+            <li>• centripetal force: 4x increase</li>
+            <li>• formula: ac = rω²</li>
+          </ul>
+        </div>
       `
     };
     whatIfList.innerHTML = scenarios[scenario] || '';
@@ -443,6 +458,12 @@ class KIROApp {
           <strong>⚡ Rotational Energy!</strong><br>
           Rolling objects are slower than sliding - energy goes into rotation.
         </div>
+      `,
+      circular_motion: `
+        <div class="insight-card">
+          <strong>⚡ Constant Speed, Changing Velocity!</strong><br>
+          Speed is constant but velocity direction changes - that's acceleration!
+        </div>
       `
     };
     insightsList.innerHTML = insights[scenario] || '';
@@ -482,6 +503,11 @@ class KIROApp {
         { name: 'angle', label: 'Angle (°)', min: 10, max: 60, value: params.angle },
         { name: 'radius', label: 'Radius (m)', min: 0.1, max: 1, value: params.radius, step: 0.1 },
         { name: 'planeLength', label: 'Plane Length (m)', min: 5, max: 20, value: params.planeLength }
+      ],
+      circular_motion: [
+        { name: 'radius', label: 'Radius (m)', min: 1, max: 10, value: params.radius },
+        { name: 'angularVelocity', label: 'Angular Velocity (rad/s)', min: 0.5, max: 3, value: params.angularVelocity, step: 0.1 },
+        { name: 'mass', label: 'Mass (kg)', min: 0.5, max: 10, value: params.mass, step: 0.5 }
       ]
     };
     

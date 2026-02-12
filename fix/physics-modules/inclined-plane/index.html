@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inclined Plane Simulator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-dark: #1a1a2e;
+      --bg-medium: #16213e;
+      --accent-orange: #ff6b35;
+      --accent-blue: #4fc3f7;
+      --accent-green: #00e676;
+      --text-light: #f5f5f5;
+      --text-muted: #a0aec0;
+    }
+
+    body {
+      font-family: 'Space Mono', monospace;
+      background: radial-gradient(ellipse at top, var(--bg-medium), var(--bg-dark));
+      color: var(--text-light);
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 4.5rem;
+      font-style: italic;
+      color: var(--accent-orange);
+      margin-bottom: 0.5rem;
+      text-shadow: 0 0 40px rgba(255, 107, 53, 0.5);
+    }
+
+    .tagline {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .control-panel {
+      background: rgba(22, 33, 62, 0.8);
+      border: 2px solid var(--accent-blue);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .section-title {
+      color: var(--accent-blue);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 1.5rem;
+      font-weight: 700;
+    }
+
+    .input-group {
+      margin-bottom: 1.8rem;
+    }
+
+    .input-label {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-bottom: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      background: linear-gradient(90deg, var(--accent-blue), var(--accent-orange));
+      border-radius: 3px;
+      outline: none;
+      -webkit-appearance: none;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+
+    input[type="range"]:hover {
+      opacity: 1;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      background: var(--accent-orange);
+      border: 2px solid var(--text-light);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    .value-readout {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.6rem;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .value-number {
+      color: var(--accent-orange);
+    }
+
+    .value-unit {
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .action-button {
+      width: 100%;
+      padding: 1.2rem;
+      background: linear-gradient(135deg, var(--accent-orange), #ff8c42);
+      border: none;
+      border-radius: 8px;
+      color: var(--bg-dark);
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 1rem;
+      box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+    }
+
+    .action-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(255, 107, 53, 0.6);
+    }
+
+    .action-button:active {
+      transform: translateY(0);
+    }
+
+    .visualization-area {
+      background: rgba(22, 33, 62, 0.5);
+      border: 2px solid var(--accent-blue);
+      border-radius: 12px;
+      padding: 2rem;
+      min-height: 600px;
+    }
+
+    #planeCanvas {
+      width: 100%;
+      height: 500px;
+      display: block;
+      border-radius: 8px;
+      background: rgba(26, 26, 46, 0.6);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .stat-box {
+      background: rgba(22, 33, 62, 0.8);
+      border: 2px solid var(--accent-green);
+      border-radius: 10px;
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-box::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--accent-green);
+    }
+
+    .stat-name {
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 0.8rem;
+    }
+
+    .stat-value {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--accent-green);
+    }
+
+    .stat-unit {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-weight: 400;
+      margin-left: 0.4rem;
+    }
+
+    .warning {
+      background: rgba(255, 107, 53, 0.1);
+      border: 2px solid var(--accent-orange);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+      color: var(--accent-orange);
+      font-size: 0.85rem;
+      text-align: center;
+      display: none;
+    }
+
+    .warning.active {
+      display: block;
+    }
+
+    @media (max-width: 1024px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+      
+      h1 {
+        font-size: 3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Inclined Plane</h1>
+      <div class="tagline">Force & Motion Analysis</div>
+    </header>
+
+    <div class="workspace">
+      <div class="control-panel">
+        <div class="section-title">Parameters</div>
+        
+        <div class="input-group">
+          <label class="input-label" for="angleSlider">Incline Angle</label>
+          <input type="range" id="angleSlider" min="0" max="60" value="30" step="1">
+          <div class="value-readout">
+            <span class="value-number" id="angleValue">30</span>
+            <span class="value-unit">degrees</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="massSlider">Mass</label>
+          <input type="range" id="massSlider" min="1" max="50" value="10" step="0.5">
+          <div class="value-readout">
+            <span class="value-number" id="massValue">10</span>
+            <span class="value-unit">kg</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="frictionSlider">Friction Coefficient</label>
+          <input type="range" id="frictionSlider" min="0" max="1" value="0.2" step="0.01">
+          <div class="value-readout">
+            <span class="value-number" id="frictionValue">0.20</span>
+            <span class="value-unit">μ</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="lengthSlider">Plane Length</label>
+          <input type="range" id="lengthSlider" min="5" max="30" value="15" step="0.5">
+          <div class="value-readout">
+            <span class="value-number" id="lengthValue">15</span>
+            <span class="value-unit">meters</span>
+          </div>
+        </div>
+
+        <button class="action-button" id="simulateBtn">Run Simulation</button>
+        
+        <div class="warning" id="noSlideWarning">
+          Object will not slide at this angle/friction combination
+        </div>
+      </div>
+
+      <div class="visualization-area">
+        <canvas id="planeCanvas"></canvas>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="stat-name">Parallel Force</div>
+        <div class="stat-value">
+          <span id="parallelForce">0.00</span>
+          <span class="stat-unit">N</span>
+        </div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-name">Normal Force</div>
+        <div class="stat-value">
+          <span id="normalForce">0.00</span>
+          <span class="stat-unit">N</span>
+        </div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-name">Friction Force</div>
+        <div class="stat-value">
+          <span id="frictionForce">0.00</span>
+          <span class="stat-unit">N</span>
+        </div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-name">Acceleration</div>
+        <div class="stat-value">
+          <span id="acceleration">0.00</span>
+          <span class="stat-unit">m/s²</span>
+        </div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-name">Time to Bottom</div>
+        <div class="stat-value">
+          <span id="timeToBottom">0.00</span>
+          <span class="stat-unit">s</span>
+        </div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-name">Final Velocity</div>
+        <div class="stat-value">
+          <span id="finalVelocity">0.00</span>
+          <span class="stat-unit">m/s</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    const GRAVITY = 9.81;
+
+    class InclinedPlane {
+      constructor(angle, mass, mu, length) {
+        this.theta = angle * Math.PI / 180;
+        this.mass = mass;
+        this.mu = mu;
+        this.length = length;
+        this.angle = angle;
+      }
+
+      getParallelForce() {
+        return this.mass * GRAVITY * Math.sin(this.theta);
+      }
+
+      getNormalForce() {
+        return this.mass * GRAVITY * Math.cos(this.theta);
+      }
+
+      getFrictionForce() {
+        return this.mu * this.getNormalForce();
+      }
+
+      getNetForce() {
+        return this.getParallelForce() - this.getFrictionForce();
+      }
+
+      getAcceleration() {
+        return this.getNetForce() / this.mass;
+      }
+
+      willSlide() {
+        return Math.tan(this.theta) > this.mu;
+      }
+
+      getTimeToBottom() {
+        if (!this.willSlide()) return Infinity;
+        return Math.sqrt(2 * this.length / this.getAcceleration());
+      }
+
+      getFinalVelocity() {
+        if (!this.willSlide()) return 0;
+        return Math.sqrt(2 * this.getAcceleration() * this.length);
+      }
+
+      getPosition(t) {
+        if (!this.willSlide()) return 0;
+        const s = 0.5 * this.getAcceleration() * t * t;
+        return Math.min(s, this.length);
+      }
+    }
+
+    // Canvas setup
+    const canvas = document.getElementById('planeCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // Controls
+    const sliders = {
+      angle: document.getElementById('angleSlider'),
+      mass: document.getElementById('massSlider'),
+      friction: document.getElementById('frictionSlider'),
+      length: document.getElementById('lengthSlider')
+    };
+
+    const values = {
+      angle: document.getElementById('angleValue'),
+      mass: document.getElementById('massValue'),
+      friction: document.getElementById('frictionValue'),
+      length: document.getElementById('lengthValue')
+    };
+
+    const stats = {
+      parallelForce: document.getElementById('parallelForce'),
+      normalForce: document.getElementById('normalForce'),
+      frictionForce: document.getElementById('frictionForce'),
+      acceleration: document.getElementById('acceleration'),
+      timeToBottom: document.getElementById('timeToBottom'),
+      finalVelocity: document.getElementById('finalVelocity')
+    };
+
+    let currentPlane = null;
+    let animationId = null;
+
+    sliders.angle.oninput = () => {
+      values.angle.textContent = sliders.angle.value;
+      updatePhysics();
+    };
+    sliders.mass.oninput = () => {
+      values.mass.textContent = sliders.mass.value;
+      updatePhysics();
+    };
+    sliders.friction.oninput = () => {
+      values.friction.textContent = parseFloat(sliders.friction.value).toFixed(2);
+      updatePhysics();
+    };
+    sliders.length.oninput = () => {
+      values.length.textContent = sliders.length.value;
+      updatePhysics();
+    };
+
+    function updatePhysics() {
+      const angle = parseFloat(sliders.angle.value);
+      const mass = parseFloat(sliders.mass.value);
+      const mu = parseFloat(sliders.friction.value);
+      const length = parseFloat(sliders.length.value);
+
+      currentPlane = new InclinedPlane(angle, mass, mu, length);
+
+      stats.parallelForce.textContent = currentPlane.getParallelForce().toFixed(2);
+      stats.normalForce.textContent = currentPlane.getNormalForce().toFixed(2);
+      stats.frictionForce.textContent = currentPlane.getFrictionForce().toFixed(2);
+      stats.acceleration.textContent = currentPlane.getAcceleration().toFixed(2);
+
+      const warning = document.getElementById('noSlideWarning');
+      if (currentPlane.willSlide()) {
+        stats.timeToBottom.textContent = currentPlane.getTimeToBottom().toFixed(2);
+        stats.finalVelocity.textContent = currentPlane.getFinalVelocity().toFixed(2);
+        warning.classList.remove('active');
+      } else {
+        stats.timeToBottom.textContent = '∞';
+        stats.finalVelocity.textContent = '0.00';
+        warning.classList.add('active');
+      }
+
+      drawPlane();
+    }
+
+    function drawPlane(objectPosition = 0) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const padding = 60;
+      const planeLength = Math.min(canvas.width - 2 * padding, 600);
+      const startX = (canvas.width - planeLength) / 2;
+      const startY = canvas.height - padding;
+      
+      const angleRad = currentPlane.theta;
+      const endX = startX + planeLength * Math.cos(angleRad);
+      const endY = startY - planeLength * Math.sin(angleRad);
+
+      // Draw ground
+      ctx.strokeStyle = '#4fc3f7';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(0, startY);
+      ctx.lineTo(canvas.width, startY);
+      ctx.stroke();
+
+      // Draw inclined plane
+      ctx.strokeStyle = '#ff6b35';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(startX, startY);
+      ctx.lineTo(endX, endY);
+      ctx.stroke();
+
+      // Draw triangle outline
+      ctx.strokeStyle = 'rgba(79, 195, 247, 0.3)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(startX, startY);
+      ctx.lineTo(endX, endY);
+      ctx.lineTo(endX, startY);
+      ctx.closePath();
+      ctx.stroke();
+
+      // Draw angle arc
+      const arcRadius = 40;
+      ctx.strokeStyle = '#00e676';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(startX, startY, arcRadius, -angleRad, 0);
+      ctx.stroke();
+
+      ctx.fillStyle = '#00e676';
+      ctx.font = '14px Space Mono';
+      ctx.fillText(`${currentPlane.angle}°`, startX + arcRadius + 10, startY - 10);
+
+      // Draw object (block)
+      if (objectPosition >= 0 && objectPosition <= currentPlane.length) {
+        const ratio = objectPosition / currentPlane.length;
+        const blockX = startX + ratio * planeLength * Math.cos(angleRad);
+        const blockY = startY - ratio * planeLength * Math.sin(angleRad);
+        const blockSize = 30;
+
+        ctx.save();
+        ctx.translate(blockX, blockY);
+        ctx.rotate(-angleRad);
+        
+        ctx.fillStyle = '#ffbe0b';
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = '#ffbe0b';
+        ctx.fillRect(-blockSize/2, -blockSize/2, blockSize, blockSize);
+        ctx.shadowBlur = 0;
+        
+        ctx.strokeStyle = '#f5f5f5';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(-blockSize/2, -blockSize/2, blockSize, blockSize);
+        
+        ctx.restore();
+      }
+    }
+
+    function animate() {
+      if (animationId) cancelAnimationFrame(animationId);
+      if (!currentPlane.willSlide()) {
+        drawPlane(0);
+        return;
+      }
+
+      const startTime = performance.now();
+      const duration = currentPlane.getTimeToBottom() * 1000;
+
+      function frame(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const t = progress * currentPlane.getTimeToBottom();
+        const position = currentPlane.getPosition(t);
+
+        drawPlane(position);
+
+        if (progress < 1) {
+          animationId = requestAnimationFrame(frame);
+        }
+      }
+
+      animationId = requestAnimationFrame(frame);
+    }
+
+    document.getElementById('simulateBtn').addEventListener('click', animate);
+
+    updatePhysics();
+  </script>
+</body>
+</html>

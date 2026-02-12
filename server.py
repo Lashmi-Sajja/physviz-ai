@@ -44,28 +44,40 @@ Identify the scenario type and extract relevant parameters:
 
 SCENARIO RULES:
 1. "projectile_motion" - Ball/object thrown at an angle (not straight up/down)
-   Required: velocity (m/s), angle (degrees, must be between 1-89, NOT 0 or 90)
+   Required: velocity (m/s), angle (degrees, 1-89)
    
-2. "free_fall" - Ball/object dropped or falling straight down (no initial horizontal velocity)
+2. "free_fall" - Ball/object dropped or falling straight down
    Required: height (meters)
    
 3. "friction" - Block/object sliding on a surface with friction
-   Required: mass (kg), velocity (m/s), friction (coefficient between 0-1)
+   Required: mass (kg), velocity (m/s), friction (coefficient 0-1)
 
-IMPORTANT:
-- If thrown "straight up" or "vertically" → use "projectile_motion" with angle=90
-- If "dropped" or "falls" → use "free_fall"
-- If "slides" or mentions friction → use "friction"
-- If thrown at any angle → use "projectile_motion"
+4. "inclined_plane" - Block sliding down a slope/ramp/incline
+   Required: mass (kg), angle (degrees), friction (coefficient), planeLength (meters)
+
+5. "river_crossing" - Boat crossing river with current, or airplane with wind
+   Required: boatSpeed (m/s), riverSpeed (m/s), angle (degrees), riverWidth (meters)
+
+6. "rolling_ball" - Ball/sphere rolling down a slope/ramp
+   Required: mass (kg), angle (degrees), radius (meters), planeLength (meters)
+
+7. "circular_motion" - Object moving in a circle
+   Required: radius (meters), angularVelocity (rad/s), mass (kg)
+
+KEYWORDS:
+- "incline", "slope", "ramp", "sliding down" → inclined_plane
+- "river", "boat", "current", "airplane", "wind" → river_crossing
+- "rolling", "rolls down" → rolling_ball
+- "circle", "circular", "revolves", "rotates around" → circular_motion
+- "thrown at angle" → projectile_motion
+- "dropped", "falls" → free_fall
+- "slides", "friction" → friction
 
 Return format:
 {{
-  "scenario": "projectile_motion" or "free_fall" or "friction",
-  "velocity": number (if applicable),
-  "angle": number (if applicable, 0-90),
-  "height": number (if applicable),
-  "mass": number (if applicable),
-  "friction": number (if applicable)
+  "scenario": "scenario_name",
+  "parameter1": value,
+  "parameter2": value
 }}
 
 Only include parameters relevant to the scenario. Return ONLY the JSON, no explanation."""

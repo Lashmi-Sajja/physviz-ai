@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Circular Motion Simulator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Crimson+Text:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --space-black: #0d1117;
+      --space-dark: #161b22;
+      --orbit-blue: #58a6ff;
+      --velocity-orange: #ff9f40;
+      --acceleration-red: #ff4757;
+      --highlight-cyan: #00ffff;
+      --text-light: #c9d1d9;
+      --border-dim: #30363d;
+    }
+
+    body {
+      font-family: 'Courier Prime', monospace;
+      background: radial-gradient(ellipse at center, var(--space-dark), var(--space-black));
+      color: var(--text-light);
+      min-height: 100vh;
+      padding: 2rem;
+      overflow-x: hidden;
+    }
+
+    .wrapper {
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+
+    h1 {
+      font-family: 'Crimson Text', serif;
+      font-size: 6rem;
+      font-style: italic;
+      background: linear-gradient(135deg, var(--orbit-blue), var(--highlight-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+      letter-spacing: -3px;
+    }
+
+    .subtitle {
+      color: var(--orbit-blue);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 6px;
+    }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      gap: 2.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .control-zone {
+      background: rgba(22, 27, 34, 0.8);
+      border: 1px solid var(--border-dim);
+      border-radius: 12px;
+      padding: 2rem;
+      height: fit-content;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    .control-header {
+      color: var(--highlight-cyan);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      margin-bottom: 1.8rem;
+      font-weight: 700;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-dim);
+    }
+
+    .control-item {
+      margin-bottom: 2rem;
+    }
+
+    .control-label {
+      display: block;
+      color: var(--orbit-blue);
+      font-size: 0.75rem;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      background: var(--space-dark);
+      border: 1px solid var(--border-dim);
+      border-radius: 3px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px;
+      height: 22px;
+      background: var(--orbit-blue);
+      border: 2px solid var(--highlight-cyan);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 15px var(--orbit-blue);
+      transition: all 0.2s ease;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+      box-shadow: 0 0 25px var(--highlight-cyan);
+    }
+
+    .value-display {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.7rem;
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    .num {
+      color: var(--highlight-cyan);
+    }
+
+    .unit-label {
+      color: var(--text-light);
+      opacity: 0.7;
+      font-size: 0.9rem;
+    }
+
+    .toggle-section {
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-dim);
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+      cursor: pointer;
+    }
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin-right: 0.8rem;
+      cursor: pointer;
+      accent-color: var(--orbit-blue);
+    }
+
+    .checkbox-label {
+      color: var(--text-light);
+      font-size: 0.85rem;
+    }
+
+    .action-btn {
+      width: 100%;
+      padding: 1.3rem;
+      background: linear-gradient(135deg, var(--velocity-orange), var(--acceleration-red));
+      border: none;
+      border-radius: 10px;
+      color: var(--space-black);
+      font-family: 'Courier Prime', monospace;
+      font-weight: 700;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 1.5rem;
+      box-shadow: 0 4px 20px rgba(255, 71, 87, 0.4);
+    }
+
+    .action-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 30px rgba(255, 71, 87, 0.6);
+    }
+
+    .canvas-area {
+      background: rgba(22, 27, 34, 0.5);
+      border: 1px solid var(--border-dim);
+      border-radius: 12px;
+      padding: 2rem;
+      min-height: 650px;
+      position: relative;
+    }
+
+    #motionCanvas {
+      width: 100%;
+      height: 600px;
+      display: block;
+      border-radius: 8px;
+      background: rgba(13, 17, 23, 0.8);
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .info-panel {
+      background: rgba(22, 27, 34, 0.8);
+      border: 1px solid var(--border-dim);
+      border-radius: 10px;
+      padding: 1.8rem;
+      position: relative;
+    }
+
+    .info-panel::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--orbit-blue), var(--highlight-cyan));
+      border-radius: 10px 10px 0 0;
+    }
+
+    .info-label {
+      color: var(--orbit-blue);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 0.8rem;
+    }
+
+    .info-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--highlight-cyan);
+      line-height: 1;
+    }
+
+    .info-unit {
+      color: var(--text-light);
+      opacity: 0.7;
+      font-size: 1rem;
+      margin-left: 0.5rem;
+    }
+
+    .legend {
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .legend-color {
+      width: 20px;
+      height: 3px;
+      border-radius: 2px;
+    }
+
+    .legend-text {
+      font-size: 0.8rem;
+      color: var(--text-light);
+    }
+
+    @media (max-width: 1200px) {
+      .main-layout {
+        grid-template-columns: 1fr;
+      }
+      
+      h1 {
+        font-size: 4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <header>
+      <h1>Circular Motion</h1>
+      <div class="subtitle">Angular Dynamics</div>
+    </header>
+
+    <div class="main-layout">
+      <div class="control-zone">
+        <div class="control-header">Motion Parameters</div>
+        
+        <div class="control-item">
+          <label class="control-label" for="radiusSlider">Radius</label>
+          <input type="range" id="radiusSlider" min="50" max="250" value="150" step="5">
+          <div class="value-display">
+            <span class="num" id="radiusValue">150</span>
+            <span class="unit-label">pixels</span>
+          </div>
+        </div>
+
+        <div class="control-item">
+          <label class="control-label" for="angularVelSlider">Angular Velocity (ω)</label>
+          <input type="range" id="angularVelSlider" min="0.1" max="5" value="1" step="0.1">
+          <div class="value-display">
+            <span class="num" id="angularVelValue">1.0</span>
+            <span class="unit-label">rad/s</span>
+          </div>
+        </div>
+
+        <div class="control-item">
+          <label class="control-label" for="massSlider">Mass</label>
+          <input type="range" id="massSlider" min="1" max="20" value="5" step="0.5">
+          <div class="value-display">
+            <span class="num" id="massValue">5.0</span>
+            <span class="unit-label">kg</span>
+          </div>
+        </div>
+
+        <div class="toggle-section">
+          <div class="control-header">Display Options</div>
+          
+          <div class="checkbox-group">
+            <input type="checkbox" id="showVelocity" checked>
+            <label class="checkbox-label" for="showVelocity">Show Velocity Vector</label>
+          </div>
+
+          <div class="checkbox-group">
+            <input type="checkbox" id="showAcceleration" checked>
+            <label class="checkbox-label" for="showAcceleration">Show Acceleration Vector</label>
+          </div>
+
+          <div class="checkbox-group">
+            <input type="checkbox" id="showTrail" checked>
+            <label class="checkbox-label" for="showTrail">Show Motion Trail</label>
+          </div>
+        </div>
+
+        <button class="action-btn" id="animateBtn">Start Motion</button>
+      </div>
+
+      <div class="canvas-area">
+        <canvas id="motionCanvas"></canvas>
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-color" style="background: var(--velocity-orange);"></div>
+            <span class="legend-text">Velocity (Tangent)</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: var(--acceleration-red);"></div>
+            <span class="legend-text">Acceleration (Centripetal)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-panel">
+        <div class="info-label">Linear Velocity</div>
+        <div class="info-value">
+          <span id="linearVel">0.00</span>
+          <span class="info-unit">m/s</span>
+        </div>
+      </div>
+      <div class="info-panel">
+        <div class="info-label">Centripetal Accel.</div>
+        <div class="info-value">
+          <span id="centripetalAccel">0.00</span>
+          <span class="info-unit">m/s²</span>
+        </div>
+      </div>
+      <div class="info-panel">
+        <div class="info-label">Period</div>
+        <div class="info-value">
+          <span id="period">0.00</span>
+          <span class="info-unit">s</span>
+        </div>
+      </div>
+      <div class="info-panel">
+        <div class="info-label">Frequency</div>
+        <div class="info-value">
+          <span id="frequency">0.00</span>
+          <span class="info-unit">Hz</span>
+        </div>
+      </div>
+      <div class="info-panel">
+        <div class="info-label">Centripetal Force</div>
+        <div class="info-value">
+          <span id="centripetalForce">0.00</span>
+          <span class="info-unit">N</span>
+        </div>
+      </div>
+      <div class="info-panel">
+        <div class="info-label">RPM</div>
+        <div class="info-value">
+          <span id="rpm">0.00</span>
+          <span class="info-unit">rev/min</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    class CircularMotion {
+      constructor(radius, omega) {
+        this.radius = radius;
+        this.omega = omega;
+      }
+
+      getLinearVelocity() {
+        return this.radius * this.omega;
+      }
+
+      getCentripetalAcceleration() {
+        return this.radius * this.omega * this.omega;
+      }
+
+      getPeriod() {
+        return this.omega === 0 ? Infinity : (2 * Math.PI) / this.omega;
+      }
+
+      getFrequency() {
+        return this.omega / (2 * Math.PI);
+      }
+
+      getCentripetalForce(mass) {
+        return mass * this.getCentripetalAcceleration();
+      }
+
+      getPosition(t, initial = 0) {
+        const theta = initial + this.omega * t;
+        return {
+          x: this.radius * Math.cos(theta),
+          y: this.radius * Math.sin(theta),
+          angle: theta
+        };
+      }
+
+      getVelocityVector(t, initial = 0) {
+        const theta = initial + this.omega * t;
+        const v = this.getLinearVelocity();
+        return {
+          vx: -v * Math.sin(theta),
+          vy: v * Math.cos(theta),
+          magnitude: v
+        };
+      }
+
+      getAccelerationVector(t, initial = 0) {
+        const theta = initial + this.omega * t;
+        const a = this.getCentripetalAcceleration();
+        return {
+          ax: -a * Math.cos(theta),
+          ay: -a * Math.sin(theta),
+          magnitude: a
+        };
+      }
+    }
+
+    const canvas = document.getElementById('motionCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resize() {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    const sliders = {
+      radius: document.getElementById('radiusSlider'),
+      omega: document.getElementById('angularVelSlider'),
+      mass: document.getElementById('massSlider')
+    };
+
+    const values = {
+      radius: document.getElementById('radiusValue'),
+      omega: document.getElementById('angularVelValue'),
+      mass: document.getElementById('massValue'),
+      linearVel: document.getElementById('linearVel'),
+      centripetalAccel: document.getElementById('centripetalAccel'),
+      period: document.getElementById('period'),
+      frequency: document.getElementById('frequency'),
+      force: document.getElementById('centripetalForce'),
+      rpm: document.getElementById('rpm')
+    };
+
+    const checks = {
+      velocity: document.getElementById('showVelocity'),
+      acceleration: document.getElementById('showAcceleration'),
+      trail: document.getElementById('showTrail')
+    };
+
+    let motion = null;
+    let animationId = null;
+    let trail = [];
+
+    sliders.radius.oninput = () => {
+      values.radius.textContent = sliders.radius.value;
+      update();
+    };
+    sliders.omega.oninput = () => {
+      values.omega.textContent = parseFloat(sliders.omega.value).toFixed(1);
+      update();
+    };
+    sliders.mass.oninput = () => {
+      values.mass.textContent = parseFloat(sliders.mass.value).toFixed(1);
+      update();
+    };
+
+    function update() {
+      const r = parseFloat(sliders.radius.value);
+      const omega = parseFloat(sliders.omega.value);
+      const mass = parseFloat(sliders.mass.value);
+
+      // Scale radius for display (pixels to meters conversion)
+      const rMeters = r / 100;
+      motion = new CircularMotion(rMeters, omega);
+
+      values.linearVel.textContent = motion.getLinearVelocity().toFixed(2);
+      values.centripetalAccel.textContent = motion.getCentripetalAcceleration().toFixed(2);
+      values.period.textContent = motion.getPeriod().toFixed(2);
+      values.frequency.textContent = motion.getFrequency().toFixed(3);
+      values.force.textContent = motion.getCentripetalForce(mass).toFixed(2);
+      values.rpm.textContent = (motion.getFrequency() * 60).toFixed(1);
+
+      draw(0);
+    }
+
+    function draw(t) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      const r = parseFloat(sliders.radius.value);
+
+      // Draw orbit path
+      ctx.strokeStyle = 'rgba(88, 166, 255, 0.3)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Draw center
+      ctx.fillStyle = '#58a6ff';
+      ctx.beginPath();
+      ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Get position
+      const pos = motion.getPosition(t);
+      const px = cx + pos.x * 100; // Convert meters to pixels
+      const py = cy + pos.y * 100;
+
+      // Draw trail
+      if (checks.trail.checked) {
+        if (trail.length > 100) trail.shift();
+        trail.push({ x: px, y: py });
+
+        ctx.strokeStyle = 'rgba(0, 255, 255, 0.3)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        trail.forEach((p, i) => {
+          if (i === 0) ctx.moveTo(p.x, p.y);
+          else ctx.lineTo(p.x, p.y);
+        });
+        ctx.stroke();
+      }
+
+      // Draw velocity vector
+      if (checks.velocity.checked) {
+        const vel = motion.getVelocityVector(t);
+        const scale = 20;
+        const vx = vel.vx * scale * 100;
+        const vy = vel.vy * scale * 100;
+
+        ctx.strokeStyle = '#ff9f40';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(px, py);
+        ctx.lineTo(px + vx, py + vy);
+        ctx.stroke();
+
+        // Arrow
+        const angle = Math.atan2(vy, vx);
+        ctx.fillStyle = '#ff9f40';
+        ctx.beginPath();
+        ctx.moveTo(px + vx, py + vy);
+        ctx.lineTo(px + vx - 10 * Math.cos(angle - 0.3), py + vy - 10 * Math.sin(angle - 0.3));
+        ctx.lineTo(px + vx - 10 * Math.cos(angle + 0.3), py + vy - 10 * Math.sin(angle + 0.3));
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      // Draw acceleration vector
+      if (checks.acceleration.checked) {
+        const acc = motion.getAccelerationVector(t);
+        const scale = 10;
+        const ax = acc.ax * scale * 100;
+        const ay = acc.ay * scale * 100;
+
+        ctx.strokeStyle = '#ff4757';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(px, py);
+        ctx.lineTo(px + ax, py + ay);
+        ctx.stroke();
+
+        // Arrow
+        const angle = Math.atan2(ay, ax);
+        ctx.fillStyle = '#ff4757';
+        ctx.beginPath();
+        ctx.moveTo(px + ax, py + ay);
+        ctx.lineTo(px + ax - 10 * Math.cos(angle - 0.3), py + ay - 10 * Math.sin(angle - 0.3));
+        ctx.lineTo(px + ax - 10 * Math.cos(angle + 0.3), py + ay - 10 * Math.sin(angle + 0.3));
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      // Draw object
+      ctx.fillStyle = '#00ffff';
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = '#00ffff';
+      ctx.beginPath();
+      ctx.arc(px, py, 10, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      ctx.strokeStyle = '#c9d1d9';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    function animate() {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+        trail = [];
+        draw(0);
+        return;
+      }
+
+      const start = performance.now();
+
+      function frame(now) {
+        const elapsed = (now - start) / 1000;
+        draw(elapsed);
+        animationId = requestAnimationFrame(frame);
+      }
+
+      animationId = requestAnimationFrame(frame);
+    }
+
+    document.getElementById('animateBtn').addEventListener('click', animate);
+
+    update();
+  </script>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Physics Simulation Modules</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Merriweather:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      min-height: 100vh;
+      padding: 3rem 2rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    h1 {
+      font-family: 'Merriweather', serif;
+      font-size: 4rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .subtitle {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      font-weight: 400;
+    }
+
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .module-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      padding: 2rem;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .module-card:hover {
+      transform: translateY(-8px);
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.4);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .module-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .module-category {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      opacity: 0.7;
+      margin-bottom: 1rem;
+    }
+
+    .module-description {
+      font-size: 1rem;
+      line-height: 1.6;
+      opacity: 0.9;
+      margin-bottom: 1.5rem;
+    }
+
+    .features {
+      list-style: none;
+      margin-bottom: 1.5rem;
+    }
+
+    .features li {
+      padding: 0.4rem 0;
+      padding-left: 1.5rem;
+      position: relative;
+      font-size: 0.9rem;
+      opacity: 0.85;
+    }
+
+    .features li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      font-weight: 700;
+    }
+
+    .module-link {
+      display: inline-block;
+      padding: 0.8rem 1.5rem;
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .module-link:hover {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .info-section {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-top: 2rem;
+    }
+
+    .info-section h2 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .info-section p {
+      font-size: 1.1rem;
+      line-height: 1.8;
+      opacity: 0.9;
+    }
+
+    .tech-stack {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+
+    .tech-badge {
+      padding: 0.5rem 1rem;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 4rem;
+      opacity: 0.7;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Physics Simulation Modules</h1>
+      <p class="subtitle">Interactive visualizations for 2D motion and circular dynamics</p>
+    </header>
+
+    <div class="modules-grid">
+      <div class="module-card" onclick="window.location='projectile-motion/index.html'">
+        <div class="module-category">2D Motion</div>
+        <h2 class="module-title">Projectile Motion</h2>
+        <p class="module-description">
+          Simulate objects launched at angles under gravity with real-time trajectory visualization.
+        </p>
+        <ul class="features">
+          <li>Adjustable velocity, angle, and height</li>
+          <li>Time of flight and range calculation</li>
+          <li>Animated projectile with trail</li>
+          <li>Velocity component breakdown</li>
+        </ul>
+        <a href="projectile-motion/index.html" class="module-link" onclick="event.stopPropagation()">Launch Simulator →</a>
+      </div>
+
+      <div class="module-card" onclick="window.location='inclined-plane/index.html'">
+        <div class="module-category">2D Motion</div>
+        <h2 class="module-title">Inclined Plane</h2>
+        <p class="module-description">
+          Analyze motion on inclined surfaces with friction, force decomposition, and sliding prediction.
+        </p>
+        <ul class="features">
+          <li>Force vector visualization</li>
+          <li>Friction coefficient analysis</li>
+          <li>Sliding motion prediction</li>
+          <li>Animated block on ramp</li>
+        </ul>
+        <a href="inclined-plane/index.html" class="module-link" onclick="event.stopPropagation()">Run Simulator →</a>
+      </div>
+
+      <div class="module-card" onclick="window.location='relative-velocity/index.html'">
+        <div class="module-category">2D Motion</div>
+        <h2 class="module-title">Relative Velocity</h2>
+        <p class="module-description">
+          River crossing and airplane wind scenarios with vector addition and multiple crossing strategies.
+        </p>
+        <ul class="features">
+          <li>Perpendicular vs. direct crossing</li>
+          <li>Custom angle control</li>
+          <li>Drift and time calculations</li>
+          <li>Animated boat with current</li>
+        </ul>
+        <a href="relative-velocity/index.html" class="module-link" onclick="event.stopPropagation()">Open Simulator →</a>
+      </div>
+
+      <div class="module-card" onclick="window.location='circular-motion/index.html'">
+        <div class="module-category">Circular Motion</div>
+        <h2 class="module-title">Circular Motion</h2>
+        <p class="module-description">
+          Uniform circular motion with angular velocity, centripetal forces, and vector visualization.
+        </p>
+        <ul class="features">
+          <li>Velocity & acceleration vectors</li>
+          <li>Period and frequency display</li>
+          <li>Centripetal force calculation</li>
+          <li>Real-time orbit animation</li>
+        </ul>
+        <a href="circular-motion/index.html" class="module-link" onclick="event.stopPropagation()">Start Simulator →</a>
+      </div>
+    </div>
+
+    <div class="info-section">
+      <h2>About These Modules</h2>
+      <p>
+        Each module includes both an interactive web-based visualization and a standalone JavaScript physics engine. 
+        The physics engines can be imported and used in your own projects for accurate motion calculations.
+        All simulations use real physics equations and provide educational insights into classical mechanics.
+      </p>
+      <div class="tech-stack">
+        <span class="tech-badge">Pure JavaScript</span>
+        <span class="tech-badge">Canvas API</span>
+        <span class="tech-badge">ES6 Modules</span>
+        <span class="tech-badge">Responsive Design</span>
+        <span class="tech-badge">No Dependencies</span>
+      </div>
+    </div>
+
+    <footer>
+      <p>Physics Simulation Modules • Educational & Open Source</p>
+    </footer>
+  </div>
+</body>
+</html>

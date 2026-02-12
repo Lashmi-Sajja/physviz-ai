@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relative Velocity Simulator</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --water-dark: #001845;
+      --water-mid: #0353a4;
+      --water-light: #119da4;
+      --boat-color: #ffd60a;
+      --accent-red: #e63946;
+      --text-white: #f1faee;
+      --bg-navy: #03071e;
+    }
+
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background: linear-gradient(to bottom, var(--bg-navy), var(--water-dark));
+      color: var(--text-white);
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 1500px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    h1 {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 5rem;
+      font-style: italic;
+      background: linear-gradient(135deg, var(--water-light), var(--boat-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+
+    .description {
+      color: var(--water-light);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 5px;
+    }
+
+    .scenario-tabs {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+
+    .tab {
+      padding: 1rem 2rem;
+      background: rgba(1, 24, 69, 0.6);
+      border: 2px solid var(--water-mid);
+      border-radius: 8px;
+      color: var(--water-light);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .tab.active {
+      background: var(--water-mid);
+      color: var(--boat-color);
+      border-color: var(--boat-color);
+    }
+
+    .tab:hover {
+      transform: translateY(-2px);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .sidebar {
+      background: rgba(1, 24, 69, 0.7);
+      border: 2px solid var(--water-mid);
+      border-radius: 16px;
+      padding: 2rem;
+      height: fit-content;
+    }
+
+    .section-header {
+      color: var(--boat-color);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+      border-bottom: 2px solid var(--water-mid);
+      padding-bottom: 0.5rem;
+    }
+
+    .param {
+      margin-bottom: 2rem;
+    }
+
+    .param-label {
+      display: block;
+      color: var(--water-light);
+      font-size: 0.8rem;
+      margin-bottom: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 8px;
+      background: var(--water-dark);
+      border: 1px solid var(--water-mid);
+      border-radius: 4px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 24px;
+      height: 24px;
+      background: var(--boat-color);
+      border: 3px solid var(--water-light);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(255, 214, 10, 0.6);
+      transition: all 0.2s ease;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+      box-shadow: 0 0 20px rgba(255, 214, 10, 0.8);
+    }
+
+    .param-value {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.6rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .value {
+      color: var(--boat-color);
+    }
+
+    .unit {
+      color: var(--water-light);
+      font-size: 0.85rem;
+    }
+
+    .strategy-selector {
+      display: grid;
+      gap: 0.8rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .strategy-btn {
+      padding: 1rem;
+      background: rgba(3, 83, 164, 0.3);
+      border: 2px solid var(--water-mid);
+      border-radius: 8px;
+      color: var(--text-white);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+
+    .strategy-btn.active {
+      background: var(--water-mid);
+      border-color: var(--boat-color);
+      color: var(--boat-color);
+    }
+
+    .strategy-btn:hover {
+      border-color: var(--water-light);
+    }
+
+    .simulate-btn {
+      width: 100%;
+      padding: 1.3rem;
+      background: linear-gradient(135deg, var(--accent-red), var(--boat-color));
+      border: none;
+      border-radius: 10px;
+      color: var(--bg-navy);
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 700;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(230, 57, 70, 0.4);
+    }
+
+    .simulate-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 30px rgba(230, 57, 70, 0.6);
+    }
+
+    .viewer {
+      background: rgba(1, 24, 69, 0.5);
+      border: 2px solid var(--water-mid);
+      border-radius: 16px;
+      padding: 2rem;
+      min-height: 600px;
+    }
+
+    #riverCanvas {
+      width: 100%;
+      height: 550px;
+      display: block;
+      border-radius: 12px;
+      background: linear-gradient(90deg, var(--water-dark), var(--water-mid));
+    }
+
+    .data-display {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .data-card {
+      background: rgba(1, 24, 69, 0.7);
+      border: 2px solid var(--water-mid);
+      border-radius: 12px;
+      padding: 1.8rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .data-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--water-light), var(--boat-color));
+    }
+
+    .data-title {
+      color: var(--water-light);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 0.8rem;
+    }
+
+    .data-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--boat-color);
+      line-height: 1;
+    }
+
+    .data-suffix {
+      color: var(--water-light);
+      font-size: 1rem;
+      margin-left: 0.5rem;
+    }
+
+    @media (max-width: 1200px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      
+      h1 {
+        font-size: 3.5rem;
+      }
+    }
+
+    .warning-box {
+      background: rgba(230, 57, 70, 0.2);
+      border: 2px solid var(--accent-red);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+      color: var(--accent-red);
+      font-size: 0.85rem;
+      display: none;
+    }
+
+    .warning-box.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Relative Velocity</h1>
+      <div class="description">River Crossing & Wind Navigation</div>
+    </header>
+
+    <div class="scenario-tabs">
+      <button class="tab active" data-scenario="river">River Crossing</button>
+      <button class="tab" data-scenario="airplane">Airplane Wind</button>
+    </div>
+
+    <div class="layout" id="riverScenario">
+      <div class="sidebar">
+        <div class="section-header">River Parameters</div>
+        
+        <div class="param">
+          <label class="param-label" for="riverWidth">River Width</label>
+          <input type="range" id="riverWidth" min="50" max="500" value="200" step="10">
+          <div class="param-value">
+            <span class="value" id="riverWidthVal">200</span>
+            <span class="unit">meters</span>
+          </div>
+        </div>
+
+        <div class="param">
+          <label class="param-label" for="riverSpeed">Current Speed</label>
+          <input type="range" id="riverSpeed" min="0.5" max="5" value="2" step="0.1">
+          <div class="param-value">
+            <span class="value" id="riverSpeedVal">2.0</span>
+            <span class="unit">m/s</span>
+          </div>
+        </div>
+
+        <div class="param">
+          <label class="param-label" for="boatSpeed">Boat Speed</label>
+          <input type="range" id="boatSpeed" min="1" max="8" value="4" step="0.1">
+          <div class="param-value">
+            <span class="value" id="boatSpeedVal">4.0</span>
+            <span class="unit">m/s</span>
+          </div>
+        </div>
+
+        <div class="section-header" style="margin-top: 2rem;">Crossing Strategy</div>
+        
+        <div class="strategy-selector">
+          <button class="strategy-btn active" data-strategy="perpendicular">
+            Perpendicular Heading<br>
+            <small style="color: var(--water-light); font-size: 0.75rem;">Point straight across</small>
+          </button>
+          <button class="strategy-btn" data-strategy="direct">
+            Direct Crossing<br>
+            <small style="color: var(--water-light); font-size: 0.75rem;">Compensate for current</small>
+          </button>
+          <button class="strategy-btn" data-strategy="custom">
+            Custom Angle<br>
+            <small style="color: var(--water-light); font-size: 0.75rem;">Set your own heading</small>
+          </button>
+        </div>
+
+        <div class="param" id="customAngleControl" style="display: none;">
+          <label class="param-label" for="customAngle">Heading Angle</label>
+          <input type="range" id="customAngle" min="0" max="180" value="90" step="1">
+          <div class="param-value">
+            <span class="value" id="customAngleVal">90</span>
+            <span class="unit">degrees</span>
+          </div>
+        </div>
+
+        <button class="simulate-btn" id="simulateRiver">Start Crossing</button>
+
+        <div class="warning-box" id="warningBox">
+          ⚠ Boat too slow to cross directly - current will sweep it downstream
+        </div>
+      </div>
+
+      <div class="viewer">
+        <canvas id="riverCanvas"></canvas>
+      </div>
+    </div>
+
+    <div class="data-display">
+      <div class="data-card">
+        <div class="data-title">Crossing Time</div>
+        <div class="data-number">
+          <span id="crossingTime">0.0</span>
+          <span class="data-suffix">s</span>
+        </div>
+      </div>
+      <div class="data-card">
+        <div class="data-title">Downstream Drift</div>
+        <div class="data-number">
+          <span id="drift">0.0</span>
+          <span class="data-suffix">m</span>
+        </div>
+      </div>
+      <div class="data-card">
+        <div class="data-title">Resultant Speed</div>
+        <div class="data-number">
+          <span id="resultantSpeed">0.0</span>
+          <span class="data-suffix">m/s</span>
+        </div>
+      </div>
+      <div class="data-card">
+        <div class="data-title">Total Distance</div>
+        <div class="data-number">
+          <span id="totalDistance">0.0</span>
+          <span class="data-suffix">m</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    class Vector2D {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+      }
+
+      add(v) {
+        return new Vector2D(this.x + v.x, this.y + v.y);
+      }
+
+      subtract(v) {
+        return new Vector2D(this.x - v.x, this.y - v.y);
+      }
+
+      magnitude() {
+        return Math.sqrt(this.x * this.x + this.y * this.y);
+      }
+
+      scale(s) {
+        return new Vector2D(this.x * s, this.y * s);
+      }
+
+      static fromPolar(mag, degAngle) {
+        const rad = degAngle * Math.PI / 180;
+        return new Vector2D(mag * Math.cos(rad), mag * Math.sin(rad));
+      }
+    }
+
+    class RiverCrossing {
+      constructor(width, riverSpeed, boatSpeed) {
+        this.width = width;
+        this.riverVelocity = new Vector2D(riverSpeed, 0);
+        this.boatSpeed = boatSpeed;
+      }
+
+      getDirectCrossingAngle() {
+        if (this.boatSpeed <= Math.abs(this.riverVelocity.x)) return null;
+        const sinTheta = this.riverVelocity.x / this.boatSpeed;
+        return -Math.asin(sinTheta) * 180 / Math.PI;
+      }
+
+      getCrossingAtAngle(angle) {
+        const boatVel = Vector2D.fromPolar(this.boatSpeed, angle);
+        const resultant = boatVel.add(this.riverVelocity);
+        
+        if (Math.abs(resultant.y) < 0.001) return null;
+        
+        const time = this.width / resultant.y;
+        const drift = resultant.x * time;
+        
+        return {
+          boatVelocity: boatVel,
+          resultant: resultant,
+          time: time,
+          drift: drift,
+          distance: resultant.magnitude() * time
+        };
+      }
+
+      getTrajectory(angle, points = 50) {
+        const result = this.getCrossingAtAngle(angle);
+        if (!result) return [];
+
+        const traj = [];
+        for (let i = 0; i <= points; i++) {
+          const t = (i / points) * result.time;
+          const pos = result.resultant.scale(t);
+          traj.push({ x: pos.x, y: pos.y, t });
+        }
+        return traj;
+      }
+    }
+
+    const canvas = document.getElementById('riverCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resize() {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    const controls = {
+      width: document.getElementById('riverWidth'),
+      riverSpeed: document.getElementById('riverSpeed'),
+      boatSpeed: document.getElementById('boatSpeed'),
+      customAngle: document.getElementById('customAngle')
+    };
+
+    const displays = {
+      width: document.getElementById('riverWidthVal'),
+      riverSpeed: document.getElementById('riverSpeedVal'),
+      boatSpeed: document.getElementById('boatSpeedVal'),
+      customAngle: document.getElementById('customAngleVal'),
+      time: document.getElementById('crossingTime'),
+      drift: document.getElementById('drift'),
+      speed: document.getElementById('resultantSpeed'),
+      distance: document.getElementById('totalDistance')
+    };
+
+    let currentStrategy = 'perpendicular';
+    let river = null;
+    let animationFrame = null;
+
+    controls.width.oninput = () => {
+      displays.width.textContent = controls.width.value;
+      update();
+    };
+    controls.riverSpeed.oninput = () => {
+      displays.riverSpeed.textContent = parseFloat(controls.riverSpeed.value).toFixed(1);
+      update();
+    };
+    controls.boatSpeed.oninput = () => {
+      displays.boatSpeed.textContent = parseFloat(controls.boatSpeed.value).toFixed(1);
+      update();
+    };
+    controls.customAngle.oninput = () => {
+      displays.customAngle.textContent = controls.customAngle.value;
+      if (currentStrategy === 'custom') update();
+    };
+
+    document.querySelectorAll('.strategy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.strategy-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentStrategy = btn.dataset.strategy;
+        
+        const customControl = document.getElementById('customAngleControl');
+        customControl.style.display = currentStrategy === 'custom' ? 'block' : 'none';
+        
+        update();
+      });
+    });
+
+    function update() {
+      const width = parseFloat(controls.width.value);
+      const riverSpeed = parseFloat(controls.riverSpeed.value);
+      const boatSpeed = parseFloat(controls.boatSpeed.value);
+
+      river = new RiverCrossing(width, riverSpeed, boatSpeed);
+
+      let angle = 90;
+      if (currentStrategy === 'direct') {
+        angle = river.getDirectCrossingAngle();
+        if (angle === null) {
+          document.getElementById('warningBox').classList.add('show');
+          angle = 90;
+        } else {
+          document.getElementById('warningBox').classList.remove('show');
+          angle += 90;
+        }
+      } else if (currentStrategy === 'custom') {
+        angle = parseFloat(controls.customAngle.value);
+      } else {
+        document.getElementById('warningBox').classList.remove('show');
+      }
+
+      const result = river.getCrossingAtAngle(angle);
+      if (result) {
+        displays.time.textContent = result.time.toFixed(1);
+        displays.drift.textContent = Math.abs(result.drift).toFixed(1);
+        displays.speed.textContent = result.resultant.magnitude().toFixed(2);
+        displays.distance.textContent = result.distance.toFixed(1);
+      }
+
+      draw(angle);
+    }
+
+    function draw(angle, boatPos = null) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const margin = 60;
+      const riverWidth = canvas.height - 2 * margin;
+      const scale = riverWidth / river.width;
+
+      // River
+      ctx.fillStyle = 'rgba(3, 83, 164, 0.3)';
+      ctx.fillRect(margin, margin, canvas.width - 2 * margin, riverWidth);
+
+      // Banks
+      ctx.strokeStyle = '#119da4';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(margin, margin);
+      ctx.lineTo(canvas.width - margin, margin);
+      ctx.moveTo(margin, margin + riverWidth);
+      ctx.lineTo(canvas.width - margin, margin + riverWidth);
+      ctx.stroke();
+
+      // Current arrows
+      ctx.strokeStyle = 'rgba(17, 157, 164, 0.4)';
+      ctx.lineWidth = 2;
+      for (let y = margin + 30; y < margin + riverWidth; y += 60) {
+        for (let x = margin + 40; x < canvas.width - margin; x += 80) {
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.lineTo(x + 30, y);
+          ctx.lineTo(x + 25, y - 5);
+          ctx.moveTo(x + 30, y);
+          ctx.lineTo(x + 25, y + 5);
+          ctx.stroke();
+        }
+      }
+
+      // Trajectory
+      const traj = river.getTrajectory(angle);
+      if (traj.length) {
+        ctx.strokeStyle = '#ffd60a';
+        ctx.lineWidth = 3;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        traj.forEach((p, i) => {
+          const x = margin + canvas.width / 2 + p.x * scale;
+          const y = margin + p.y * scale;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      // Boat
+      let bx = canvas.width / 2;
+      let by = margin;
+      if (boatPos) {
+        bx = margin + canvas.width / 2 + boatPos.x * scale;
+        by = margin + boatPos.y * scale;
+      }
+
+      ctx.save();
+      ctx.translate(bx, by);
+      ctx.rotate(-angle * Math.PI / 180);
+      
+      ctx.fillStyle = '#ffd60a';
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = '#ffd60a';
+      ctx.beginPath();
+      ctx.moveTo(0, -15);
+      ctx.lineTo(-10, 15);
+      ctx.lineTo(10, 15);
+      ctx.closePath();
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      
+      ctx.strokeStyle = '#f1faee';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      
+      ctx.restore();
+    }
+
+    function animate() {
+      if (animationFrame) cancelAnimationFrame(animationFrame);
+
+      const angle = currentStrategy === 'custom' ? parseFloat(controls.customAngle.value) : 
+                    currentStrategy === 'direct' ? (river.getDirectCrossingAngle() || 0) + 90 : 90;
+      
+      const result = river.getCrossingAtAngle(angle);
+      if (!result) return;
+
+      const start = performance.now();
+      const duration = result.time * 1000;
+
+      function frame(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const t = progress * result.time;
+        const pos = result.resultant.scale(t);
+
+        draw(angle, pos);
+
+        if (progress < 1) {
+          animationFrame = requestAnimationFrame(frame);
+        }
+      }
+
+      animationFrame = requestAnimationFrame(frame);
+    }
+
+    document.getElementById('simulateRiver').addEventListener('click', animate);
+
+    update();
+  </script>
+</body>
+</html>

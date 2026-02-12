@@ -8,50 +8,50 @@ PhysicsViz follows a client-server architecture with AI-powered natural language
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                         User Interface                       │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
-│  │ Text Input   │  │  Canvas      │  │  Controls    │      │
-│  │   Box        │  │ (p5.js)      │  │  (Sliders)   │      │
-│  └──────────────┘  └──────────────┘  └──────────────┘      │
+│                         User Interface                      │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐       │
+│  │ Text Input   │  │  Canvas      │  │  Controls    │       │
+│  │   Box        │  │ (p5.js)      │  │  (Sliders)   │       │
+│  └──────────────┘  └──────────────┘  └──────────────┘       │
 └─────────────────────────────────────────────────────────────┘
                             │
                             │ HTTP POST
                             ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                      Flask Backend                           │
+│                      Flask Backend                          │
 │  ┌──────────────────────────────────────────────────────┐   │
 │  │              API Endpoint (/api/parse)               │   │
 │  └──────────────────────────────────────────────────────┘   │
-│                            │                                 │
-│                            ▼                                 │
+│                            │                                │
+│                            ▼                                │
 │  ┌──────────────────────────────────────────────────────┐   │
-│  │           LLM Integration (OpenAI/Gemini)            │   │
+│  │           LLM Integration (Groq API (Llama 3))       │   │
 │  │  - Extract entities                                  │   │
 │  │  - Identify parameters                               │   │
 │  │  - Classify scenario type                            │   │
 │  └──────────────────────────────────────────────────────┘   │
-│                            │                                 │
-│                            ▼                                 │
+│                            │                                │
+│                            ▼                                │
 │  ┌──────────────────────────────────────────────────────┐   │
-│  │              Physics Parameter Parser                │   │
-│  │  - Validate extracted data                           │   │
-│  │  - Set defaults                                      │   │
-│  │  - Structure JSON response                           │   │
+│  │         Parameter Structuring (in Prompt)            │   │
+│  │  - Prompt requests specific JSON format              │   │
+│  │  - One-shot example guides the model                 │   │
+│  │  - Default values for ambiguous cases are in prompt  │   │
 │  └──────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────┘
                             │
                             │ JSON Response
                             ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                   Frontend Visualization                     │
+│                   Frontend Visualization                    │
 │  ┌──────────────────────────────────────────────────────┐   │
 │  │              Physics Engine (JavaScript)             │   │
 │  │  - Kinematic equations                               │   │
 │  │  - Position/velocity calculations                    │   │
 │  │  - Collision detection                               │   │
 │  └──────────────────────────────────────────────────────┘   │
-│                            │                                 │
-│                            ▼                                 │
+│                            │                                │
+│                            ▼                                │
 │  ┌──────────────────────────────────────────────────────┐   │
 │  │           p5.js Rendering Engine                     │   │
 │  │  - Draw objects                                      │   │
@@ -70,7 +70,7 @@ PhysicsViz follows a client-server architecture with AI-powered natural language
 - **Visualization Canvas**: 800x600px canvas for animation
 - **Control Panel**: Sliders and buttons for interaction
 
-#### JavaScript Logic (script.js)
+#### JavaScript Logic (kiro-app.js)
 - **Event Handlers**: Capture user input and interactions
 - **API Communication**: Fetch API calls to backend
 - **State Management**: Track simulation state and parameters
@@ -98,14 +98,11 @@ Flask Server
 ```
 
 #### LLM Integration
-- **Provider**: OpenAI GPT-4 or Google Gemini
+- **Provider**: Groq API (Llama 3)
 - **Prompt Engineering**: Structured prompts for parameter extraction
 - **Response Parsing**: Convert LLM output to structured JSON
 
-#### Physics Module (physics.py)
-- **Scenario Classification**: Identify problem type
-- **Parameter Validation**: Ensure valid physics values
-- **Default Values**: Fill missing parameters
+
 
 ### 3. Data Flow
 

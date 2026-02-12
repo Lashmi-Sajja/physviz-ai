@@ -1,104 +1,116 @@
-# PhysicsViz - AI-Powered Physics Problem Visualizer
+# PhysViz AI: AI-Powered Physics Problem Visualizer
 
-Transform physics word problems into interactive visual simulations.
+**PhysViz AI** bridges the gap between abstract physics problems and conceptual understanding by transforming natural language word problems into interactive, real-time visual simulations.
 
-## Quick Start
+## Key Features
 
-```bash
-# Install dependencies
-pip install -r requirements.txt
+-   **AI-Powered Problem Parsing:** Enter a custom physics problem and watch as our AI, powered by the Groq API (Llama 3), extracts the parameters and sets up the simulation.
+-   **Interactive Visualizations:** A dynamic canvas renders the physics scenarios at 60 FPS, providing immediate visual feedback.
+-   **Real-Time Parameter Control:** Adjust parameters like velocity, angle, and mass using sliders and see the effects on the simulation instantly.
+-   **Structured Learning Modules:** Explore concepts through a curated set of modules and lessons.
+-   **Live Physics Graphs:** See a real-time plot of Height vs. Time for the simulations.
 
-# Run server
-python server.py
+### Implemented Physics Modules
+-   ✅ **Projectile Motion** (at an angle)
+-   ✅ **Vertical Projectile**
+-   ✅ **Free Fall**
+-   ✅ **Friction**
+-   ✅ **Relative Velocity**
 
-# Open browser
-http://localhost:5000
-```
+## Getting Started
 
-## Features
+Follow these instructions to get the project running on your local machine.
 
-### 3 Physics Modules (Implemented)
-1. **Projectile Motion** - Launch objects at angles
-2. **Free Fall** - Drop objects from heights  
-3. **Friction** - Sliding with resistance
+### Prerequisites
 
-### Core Capabilities
-- Visual scenario selector
-- Real-time parameter adjustment
-- Interactive canvas visualization
-- Physics insights during simulation
-- What-If scenario predictions
-- Modular architecture for easy expansion
+-   Python 3.8+
+-   `pip` for package installation
+-   A Groq API Key
+
+### Installation & Setup
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/your-username/physviz-ai.git
+    cd physviz-ai
+    ```
+
+2.  **Set up the Python virtual environment:**
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+    ```
+
+3.  **Install dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+4.  **Set up your environment variables:**
+    -   Create a file named `.env` in the root of the project.
+    -   Add your Groq API key to it:
+        ```
+        GROQ_API_KEY="your-groq-api-key-here"
+        ```
+
+### Running the Prototype
+
+1.  **Start the Flask server:**
+    ```bash
+    python server.py
+    ```
+
+2.  **Open your browser:**
+    -   Navigate to `http://127.0.0.1:5000`
+
+## How to Use
+
+1.  **Start Learning:** From the home page, click "Start Learning".
+2.  **Choose a Module:**
+    -   Select a pre-defined module like "Kinematics" to see a list of concepts. Click on a concept to launch the simulator with a default lesson.
+    -   Or, select "Custom Problem" to use the AI parser.
+3.  **Interact with the Simulation:**
+    -   If using a pre-defined module, use the sliders on the right to adjust the parameters.
+    -   If using the custom input, type your problem, click "Parse with AI", and then "Run Simulation".
+    -   Use the "Play/Pause" and "Reset" buttons to control the animation.
 
 ## Project Structure
 
 ```
 physviz-ai/
 ├── src/
-│   ├── core/              # Core architecture
-│   ├── scenarios/         # Physics modules
-│   ├── index.html         # Main UI
-│   ├── styles.css         # Styling
-│   └── app.js            # Application logic
-├── docs/                  # Documentation
-├── example/              # React prototype
-├── server.py             # Flask server
-└── requirements.txt      # Dependencies
+│   ├── core/
+│   │   ├── P5PhysicsRenderer.js  # Core physics and rendering engine
+│   │   └── GraphRenderer.js      # Real-time graph plotting
+│   ├── kiro.html                 # Main application UI
+│   ├── kiro-styles.css           # Application styling
+│   └── kiro-app.js               # Main application logic and state
+├── docs/                         # Project documentation
+├── server.py                     # Flask backend server
+├── requirements.txt              # Python dependencies
+└── README.md
 ```
-
-## How to Use
-
-1. **Select a physics module** from the grid
-2. **Enter a problem** or click "Quick Start"
-3. **Adjust parameters** with sliders
-4. **Start simulation** and watch the animation
-5. **View insights** and what-if scenarios in real-time
 
 ## Architecture
 
-### Modular Design
-- `BaseScenario` - Abstract class for all physics modules
-- `ScenarioManager` - Handles scenario loading and rendering
-- Each module is independent and pluggable
+The application uses a client-server architecture.
+-   The **Frontend** is a vanilla JavaScript single-page application that handles the UI, user interaction, and all physics rendering via the HTML5 Canvas (powered by p5.js).
+-   The **Backend** is a lightweight Flask server that serves the frontend and acts as an intermediary to the **Groq API** for natural language processing. The core of the AI parsing is handled by carefully engineered prompts sent to the Llama 3 model.
 
-### Adding New Modules
-See `QUICKSTART.md` for detailed instructions on adding new physics scenarios.
-
-## Documentation
-
-- `docs/MODULES.md` - Complete list of 14 planned physics modules
-- `docs/ARCHITECTURE.md` - System architecture details
-- `docs/IMPLEMENTATION.md` - Implementation guide
-- `QUICKSTART.md` - Development guide
-
-## Roadmap
-
-### Phase 1 (Current)
-- Modular architecture
-- 3 core physics modules
-- Scenario selector UI
-
-### Phase 2 (Next)
-- AI problem parsing with LLM
-- 11 more physics modules
-- Backend integration
-
-### Phase 3 (Future)
-- Save/share simulations
-- Multiple object interactions
-- 3D visualizations
+For more details, see `docs/ARCHITECTURE.md`.
 
 ## Tech Stack
 
-- **Frontend:** Vanilla JS (ES6 modules), HTML5 Canvas
-- **Backend:** Flask (Python)
-- **AI:** OpenAI/Gemini (planned)
-- **Styling:** Modern CSS with gradients
+-   **Frontend:** Vanilla JS (ES6), p5.js, HTML5, CSS3
+-   **Backend:** Flask (Python)
+-   **AI:** Groq API (Llama 3)
+
+## Roadmap
+
+-   **Short Term:** Implement more physics modules from our list of 14, including Inclined Planes and Collisions. Enhance the graph to plot more variables (e.g., velocity, energy).
+-   **Medium Term:** Introduce a "What-If" scenario feature where the AI predicts outcomes of parameter changes. Implement user accounts to save progress and custom problems.
+-   **Long Term:** Explore 3D visualizations using WebGL/Three.js and expand the learning platform with quizzes and more detailed educational content.
 
 ## License
 
-MIT License
-
-## Built for Vibe Coding Hackathon
-
-Problem Statement: Create an AI-powered system that converts physics word problems into interactive visual simulations for STEM education.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

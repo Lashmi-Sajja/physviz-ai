@@ -38,25 +38,38 @@ def parse_problem():
         # Create prompt for LLM
         prompt = f"""Extract physics parameters from this problem and return ONLY valid JSON.
 
+First, here is an example of how to parse a problem:
+Problem: "An airplane flies at 500 km/h North in a wind blowing 50 km/h East."
+JSON:
+{{
+  "scenario": "relative_velocity",
+  "object_speed": 500,
+  "object_angle": 270,
+  "medium_speed": 50,
+  "medium_angle": 0
+}}
+
+Now, parse the following problem based on the rules provided.
+
 Problem: {problem}
 
 Identify the scenario type and extract relevant parameters:
 
 SCENARIO RULES:
 1. "projectile_motion" - Ball/object thrown at an angle (not straight up/down)
-   Required: velocity (m/s), angle (degrees, must be between 1-89, NOT 0 or 90)
+   Required: velocity, angle
    
 2. "free_fall" - Ball/object dropped or falling straight down (no initial horizontal velocity)
-   Required: height (meters)
+   Required: height
    
 3. "friction" - Block/object sliding on a surface with friction
-   Required: mass (kg), velocity (m/s), friction (coefficient between 0-1)
+   Required: mass, velocity, friction
 
 4. "relative_velocity" - Boat in a river, airplane in wind, etc.
-   - Extracts the speed and direction (angle) for both the object and the medium (e.g., river current, wind).
+   - Extracts the speed and direction (angle) for both the object and the medium.
    - Angle conventions: 0 degrees is East (right), 90 is South (down), 180 is West (left), 270 is North (up).
-   - If directions are ambiguous (e.g., "a boat crosses a river"), assume the object is pointed East (angle: 0) and the medium is flowing South (angle: 90).
-   - Required: object_velocity {{ "speed": number, "angle": number }}, medium_velocity {{ "speed": number, "angle": number }}
+   - If directions are ambiguous, assume the object is pointed East (angle: 0) and the medium is flowing South (angle: 90).
+   - Required: object_speed, object_angle, medium_speed, medium_angle
 
 IMPORTANT:
 - If thrown "straight up" or "vertically" → use "projectile_motion" with angle=90
@@ -73,8 +86,10 @@ Return format:
   "height": number (if applicable),
   "mass": number (if applicable),
   "friction": number (if applicable),
-  "object_velocity": {{ "speed": number, "angle": number }} (if applicable),
-  "medium_velocity": {{ "speed": number, "angle": number }} (if applicable)
+  "object_speed": number (if applicable),
+  "object_angle": number (if applicable),
+  "medium_speed": number (if applicable),
+  "medium_angle": number (if applicable)
 }}
 
 Only include parameters relevant to the scenario. Return ONLY the JSON, no explanation."""

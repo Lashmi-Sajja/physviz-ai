@@ -127,17 +127,19 @@ export class P5PhysicsRenderer {
   }
 
   setupRelativeVelocity(p, params) {
-    const obj_vel = params.object_velocity || { speed: 4, angle: 0 };
-    const med_vel = params.medium_velocity || { speed: 3, angle: 90 };
+    const obj_speed = params.object_speed || 4;
+    const obj_angle = params.object_angle || 0;
+    const med_speed = params.medium_speed || 3;
+    const med_angle = params.medium_angle || 90;
 
-    const obj_angle_rad = obj_vel.angle * Math.PI / 180;
-    const med_angle_rad = med_vel.angle * Math.PI / 180;
+    const obj_angle_rad = obj_angle * Math.PI / 180;
+    const med_angle_rad = med_angle * Math.PI / 180;
 
-    const obj_vx = obj_vel.speed * Math.cos(obj_angle_rad);
-    const obj_vy = obj_vel.speed * Math.sin(obj_angle_rad);
+    const obj_vx = obj_speed * Math.cos(obj_angle_rad);
+    const obj_vy = obj_speed * Math.sin(obj_angle_rad);
 
-    const med_vx = med_vel.speed * Math.cos(med_angle_rad);
-    const med_vy = med_vel.speed * Math.sin(med_angle_rad);
+    const med_vx = med_speed * Math.cos(med_angle_rad);
+    const med_vy = med_speed * Math.sin(med_angle_rad);
 
     const resultant_vx = obj_vx + med_vx;
     const resultant_vy = obj_vy + med_vy;
@@ -151,8 +153,8 @@ export class P5PhysicsRenderer {
       radius: 10,
       color: [255, 255, 100],
       trail: [],
-      object_velocity: {x: obj_vx, y: obj_vy, speed: obj_vel.speed, angle: obj_vel.angle},
-      medium_velocity: {x: med_vx, y: med_vy, speed: med_vel.speed, angle: med_vel.angle}
+      object_velocity: {x: obj_vx, y: obj_vy, speed: obj_speed, angle: obj_angle},
+      medium_velocity: {x: med_vx, y: med_vy, speed: med_speed, angle: med_angle}
     });
   }
 

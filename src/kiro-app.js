@@ -110,13 +110,7 @@ class KIROApp {
       html += `
         <div class="param-item">
           <span class="param-label">${key}:</span>
-          <span class="param-value">`;
-      if (typeof value === 'object' && value !== null) {
-        html += `<pre style="margin: 0; display: inline;">${JSON.stringify(value, null, 2)}</pre>`;
-      } else {
-        html += value;
-      }
-      html += `</span>
+          <span class="param-value">${value}</span>
         </div>
       `;
     }
@@ -435,10 +429,10 @@ class KIROApp {
         { name: 'friction', label: 'Friction (μ)', min: 0.1, max: 1, value: params.friction, step: 0.05 }
       ],
       relative_velocity: [
-        { name: 'object_velocity.speed', label: 'Object Speed (m/s)', min: 1, max: 10, value: params.object_velocity.speed },
-        { name: 'object_velocity.angle', label: 'Object Angle (°)', min: 0, max: 360, value: params.object_velocity.angle },
-        { name: 'medium_velocity.speed', label: 'Medium Speed (m/s)', min: 1, max: 10, value: params.medium_velocity.speed },
-        { name: 'medium_velocity.angle', label: 'Medium Angle (°)', min: 0, max: 360, value: params.medium_velocity.angle }
+        { name: 'object_speed', label: 'Object Speed (m/s)', min: 1, max: 10, value: params.object_speed },
+        { name: 'object_angle', label: 'Object Angle (°)', min: 0, max: 360, value: params.object_angle },
+        { name: 'medium_speed', label: 'Medium Speed (m/s)', min: 1, max: 10, value: params.medium_speed },
+        { name: 'medium_angle', label: 'Medium Angle (°)', min: 0, max: 360, value: params.medium_angle }
       ]
     };
     
@@ -463,15 +457,7 @@ class KIROApp {
   updateParams() {
     const params = {};
     document.querySelectorAll('#paramControls input').forEach(input => {
-      const keys = input.id.split('.');
-      if (keys.length > 1) {
-        if (!params[keys[0]]) {
-          params[keys[0]] = {};
-        }
-        params[keys[0]][keys[1]] = parseFloat(input.value);
-      } else {
-        params[input.id] = parseFloat(input.value);
-      }
+      params[input.id] = parseFloat(input.value);
     });
     this.currentLesson.params = params;
     this.renderer.updateParams(params);

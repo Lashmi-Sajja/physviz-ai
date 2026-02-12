@@ -48,6 +48,15 @@ export class P5PhysicsRenderer {
       case 'friction':
         this.setupFriction(p, params);
         break;
+      case 'inclined_plane':
+        this.setupInclinedPlane(p, params);
+        break;
+      case 'river_crossing':
+        this.setupRiverCrossing(p, params);
+        break;
+      case 'rolling_ball':
+        this.setupRollingBall(p, params);
+        break;
     }
   }
 
@@ -116,6 +125,57 @@ export class P5PhysicsRenderer {
       color: [100, 255, 100],
       friction: friction,
       mass: mass
+    });
+  }
+
+  setupInclinedPlane(p, params) {
+    const mass = params.mass || 10;
+    const angle = params.angle || 30;
+    const friction = params.friction || 0.2;
+    const planeLength = params.planeLength || 10;
+    
+    this.objects.push({
+      type: 'inclined',
+      x: 0,
+      mass: mass,
+      angle: angle,
+      friction: friction,
+      planeLength: planeLength,
+      g: 9.8
+    });
+  }
+
+  setupRiverCrossing(p, params) {
+    const boatSpeed = params.boatSpeed || 3;
+    const riverSpeed = params.riverSpeed || 2;
+    const angle = params.angle || 90;
+    const riverWidth = params.riverWidth || 100;
+    
+    this.objects.push({
+      type: 'river',
+      x: 0,
+      y: 0,
+      boatSpeed: boatSpeed,
+      riverSpeed: riverSpeed,
+      angle: angle,
+      riverWidth: riverWidth
+    });
+  }
+
+  setupRollingBall(p, params) {
+    const mass = params.mass || 5;
+    const angle = params.angle || 30;
+    const radius = params.radius || 0.5;
+    const planeLength = params.planeLength || 10;
+    
+    this.objects.push({
+      type: 'rolling',
+      x: 0,
+      mass: mass,
+      angle: angle,
+      radius: radius,
+      planeLength: planeLength,
+      g: 9.8
     });
   }
 
@@ -301,6 +361,126 @@ export class P5PhysicsRenderer {
         p.textSize(10);
         p.textAlign(p.CENTER);
         p.text(`μ=${obj.friction}`, obj.x + obj.width/2, obj.y + obj.height + 15);
+        
+      } else if (obj.type === 'inclined') {
+        const angleRad = obj.angle * Math.PI / 180;
+        const a = obj.g * (Math.sin(angleRad) - obj.friction * Math.cos(angleRad));
+        const x = 0.5 * a * this.t * this.t;
+        const scale = 300 / obj.planeLength;
+        
+        // Draw plane
+        p.stroke(100, 100, 100);
+        p.strokeWeight(4);
+        const planeStartX = 100;
+        const planeStartY = 300;
+        const planeEndX = planeStartX + 300 * Math.cos(angleRad);
+        const planeEndY = planeStartY - 300 * Math.sin(angleRad);
+        p.line(planeStartX, planeStartY, planeEndX, planeEndY);
+        
+        // Draw ground
+        p.line(0, planeStartY, planeStartX, planeStartY);
+        
+        // Draw angle arc
+        p.stroke(251, 191, 36);
+        p.strokeWeight(2);
+        p.noFill();
+        p.arc(planeStartX, planeStartY, 60, 60, -angleRad, 0);
+        
+        // Draw angle label
+        p.fill(251, 191, 36);
+        p.noStroke();
+        p.textSize(14);
+        p.text(`${obj.angle}°`, planeStartX + 70, planeStartY - 10);
+        
+        // Draw block
+        const blockX = planeStartX + x * scale * Math.cos(angleRad);
+        const blockY = planeStartY - x * scale * Math.sin(angleRad);
+        p.fill(59, 130, 246);
+        p.stroke(0, 255, 65);
+        p.strokeWeight(2);
+        p.rect(blockX - 15, blockY - 15, 30, 30);
+        
+        // Display info
+        p.fill(0, 255, 65);
+        p.noStroke();
+        p.textSize(12);
+        p.textAlign(p.LEFT);
+        p.text(`Distance: ${x.toFixed(2)}m`, 10, 40);
+        p.text(`Velocity: ${(a * this.t).toFixed(2)}m/s`, 10, 60);
+        p.text(`Acceleration: ${a.toFixed(2)}m/s²`, 10, 80);
+        p.text(`Friction: μ=${obj.friction}`, 10, 100);
+        
+      } else if (obj.type === 'river') {
+        const angleRad = obj.angle * Math.PI / 180;
+        const vx = obj.riverSpeed + obj.boatSpeed * Math.cos(angleRad);
+        const vy = obj.boatSpeed * Math.sin(angleRad);
+        const x = vx * this.t;
+        const y = vy * this.t;
+        
+        // Draw river
+        p.fill(59, 130, 246);
+        p.noStroke();
+        p.rect(0, 100, 600, 200);
+        
+        // Draw boat
+        const scale = 200 / obj.riverWidth;
+        const boatX = 50 + x * 3;
+        const boatY = 100 + y * scale;
+        p.fill(239, 68, 68);
+        p.triangle(boatX, boatY - 15, boatX - 10, boatY + 15, boatX + 10, boatY + 15);
+        
+      } else if (obj.type === 'rolling') {
+        const angleRad = obj.angle * Math.PI / 180;
+        const a = (obj.g * Math.sin(angleRad)) / (1 + 2/5);
+        const x = 0.5 * a * this.t * this.t;
+        const rotation = x / obj.radius;
+        const scale = 300 / obj.planeLength;
+        
+        // Draw plane
+        p.stroke(100, 100, 100);
+        p.strokeWeight(4);
+        const planeStartX = 100;
+        const planeStartY = 300;
+        const planeEndX = planeStartX + 300 * Math.cos(angleRad);
+        const planeEndY = planeStartY - 300 * Math.sin(angleRad);
+        p.line(planeStartX, planeStartY, planeEndX, planeEndY);
+        
+        // Draw ground
+        p.line(0, planeStartY, planeStartX, planeStartY);
+        
+        // Draw angle arc
+        p.stroke(251, 191, 36);
+        p.strokeWeight(2);
+        p.noFill();
+        p.arc(planeStartX, planeStartY, 60, 60, -angleRad, 0);
+        
+        // Draw angle label
+        p.fill(251, 191, 36);
+        p.noStroke();
+        p.textSize(14);
+        p.text(`${obj.angle}°`, planeStartX + 70, planeStartY - 10);
+        
+        // Draw ball
+        const ballX = planeStartX + x * scale * Math.cos(angleRad);
+        const ballY = planeStartY - x * scale * Math.sin(angleRad);
+        p.fill(239, 68, 68);
+        p.stroke(0, 255, 65);
+        p.strokeWeight(2);
+        p.circle(ballX, ballY, 30);
+        
+        // Rotation indicator
+        p.stroke(255, 255, 255);
+        p.strokeWeight(3);
+        p.line(ballX, ballY, ballX + 12 * Math.cos(rotation), ballY + 12 * Math.sin(rotation));
+        
+        // Display info
+        p.fill(0, 255, 65);
+        p.noStroke();
+        p.textSize(12);
+        p.textAlign(p.LEFT);
+        p.text(`Distance: ${x.toFixed(2)}m`, 10, 40);
+        p.text(`Velocity: ${(a * this.t).toFixed(2)}m/s`, 10, 60);
+        p.text(`Acceleration: ${a.toFixed(2)}m/s²`, 10, 80);
       }
     });
   }

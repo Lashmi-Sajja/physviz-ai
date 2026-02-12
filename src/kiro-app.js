@@ -204,46 +204,42 @@ class KIROApp {
 
   loadConceptDirect(concept) {
     this.currentConcept = concept;
-    // Load medium difficulty by default
     const lessons = this.getLessons(concept);
-    const mediumLesson = lessons.find(l => l.difficulty === 'medium') || lessons[0];
-    this.loadLesson(mediumLesson);
+    const lesson = lessons[0];
+    this.loadLesson(lesson);
   }
 
   getLessons(concept) {
     const lessons = {
       projectile: [
-        { id: 'proj_easy', difficulty: 'easy', title: 'Basic Launch', 
-          problem: 'A ball is thrown at 30° with speed 15 m/s', 
-          params: { velocity: 15, angle: 30 }, scenario: 'projectile_motion' },
-        { id: 'proj_med', difficulty: 'medium', title: 'Optimal Angle', 
+        { id: 'projectile', title: 'Projectile Motion', 
           problem: 'A ball is thrown at 45° with speed 25 m/s', 
-          params: { velocity: 25, angle: 45 }, scenario: 'projectile_motion' },
-        { id: 'proj_hard', difficulty: 'hard', title: 'High Velocity', 
-          problem: 'A ball is thrown at 60° with speed 40 m/s', 
-          params: { velocity: 40, angle: 60 }, scenario: 'projectile_motion' }
+          params: { velocity: 25, angle: 45 }, scenario: 'projectile_motion' }
       ],
       freefall: [
-        { id: 'ff_easy', difficulty: 'easy', title: 'Low Height', 
-          problem: 'A ball is dropped from 20 meters', 
-          params: { height: 20 }, scenario: 'free_fall' },
-        { id: 'ff_med', difficulty: 'medium', title: 'Medium Height', 
+        { id: 'freefall', title: 'Free Fall', 
           problem: 'A ball is dropped from 50 meters', 
-          params: { height: 50 }, scenario: 'free_fall' },
-        { id: 'ff_hard', difficulty: 'hard', title: 'High Tower', 
-          problem: 'A ball is dropped from 100 meters', 
-          params: { height: 100 }, scenario: 'free_fall' }
+          params: { height: 50 }, scenario: 'free_fall' }
       ],
       friction: [
-        { id: 'fr_easy', difficulty: 'easy', title: 'Low Friction', 
-          problem: 'A 5kg block slides at 10 m/s with μ=0.2', 
-          params: { mass: 5, velocity: 10, friction: 0.2 }, scenario: 'friction' },
-        { id: 'fr_med', difficulty: 'medium', title: 'Medium Friction', 
+        { id: 'friction', title: 'Friction', 
           problem: 'A 10kg block slides at 20 m/s with μ=0.3', 
-          params: { mass: 10, velocity: 20, friction: 0.3 }, scenario: 'friction' },
-        { id: 'fr_hard', difficulty: 'hard', title: 'High Friction', 
-          problem: 'A 20kg block slides at 30 m/s with μ=0.5', 
-          params: { mass: 20, velocity: 30, friction: 0.5 }, scenario: 'friction' }
+          params: { mass: 10, velocity: 20, friction: 0.3 }, scenario: 'friction' }
+      ],
+      inclined: [
+        { id: 'inclined', title: 'Inclined Plane', 
+          problem: 'A 10kg block slides down a 30° incline with μ=0.2', 
+          params: { mass: 10, angle: 30, friction: 0.2, planeLength: 10 }, scenario: 'inclined_plane' }
+      ],
+      river: [
+        { id: 'river', title: 'River Crossing', 
+          problem: 'A boat crosses a 100m river at 3 m/s, current 2 m/s', 
+          params: { boatSpeed: 3, riverSpeed: 2, angle: 90, riverWidth: 100 }, scenario: 'river_crossing' }
+      ],
+      rolling: [
+        { id: 'rolling', title: 'Rolling Ball', 
+          problem: 'A 5kg ball rolls down a 30° incline', 
+          params: { mass: 5, angle: 30, radius: 0.5, planeLength: 10 }, scenario: 'rolling_ball' }
       ],
       buoyancy: [
         { id: 'buoy_easy', difficulty: 'easy', title: 'Simple Float', 
@@ -371,6 +367,35 @@ class KIROApp {
             <li>• formula: d ∝ 1/μ</li>
           </ul>
         </div>
+      `,
+      inclined_plane: `
+        <div class="whatif-card">
+          <strong>What if angle increases?</strong>
+          <ul>
+            <li>• acceleration increases (steeper slope)</li>
+            <li>• formula: a = g(sinθ - μcosθ)</li>
+          </ul>
+        </div>
+      `,
+      river_crossing: `
+        <div class="whatif-card">
+          <strong>What if current doubles?</strong>
+          <ul>
+            <li>• drift distance doubles</li>
+            <li>• crossing time unchanged</li>
+            <li>• aim upstream to compensate</li>
+          </ul>
+        </div>
+      `,
+      rolling_ball: `
+        <div class="whatif-card">
+          <strong>What if angle increases?</strong>
+          <ul>
+            <li>• acceleration increases</li>
+            <li>• still slower than sliding</li>
+            <li>• formula: a = g·sinθ / (1 + I/mr²)</li>
+          </ul>
+        </div>
       `
     };
     whatIfList.innerHTML = scenarios[scenario] || '';
@@ -400,6 +425,24 @@ class KIROApp {
           <strong>⚡ Energy Lost!</strong><br>
           Kinetic energy converts to heat due to friction.
         </div>
+      `,
+      inclined_plane: `
+        <div class="insight-card">
+          <strong>⚡ Forces Combined!</strong><br>
+          Gravity and friction both affect acceleration down the slope.
+        </div>
+      `,
+      river_crossing: `
+        <div class="insight-card">
+          <strong>⚡ Relative Motion!</strong><br>
+          Boat velocity and river current combine as vectors.
+        </div>
+      `,
+      rolling_ball: `
+        <div class="insight-card">
+          <strong>⚡ Rotational Energy!</strong><br>
+          Rolling objects are slower than sliding - energy goes into rotation.
+        </div>
       `
     };
     insightsList.innerHTML = insights[scenario] || '';
@@ -421,6 +464,24 @@ class KIROApp {
         { name: 'mass', label: 'Mass (kg)', min: 1, max: 50, value: params.mass },
         { name: 'velocity', label: 'Velocity (m/s)', min: 5, max: 50, value: params.velocity },
         { name: 'friction', label: 'Friction (μ)', min: 0.1, max: 1, value: params.friction, step: 0.05 }
+      ],
+      inclined_plane: [
+        { name: 'mass', label: 'Mass (kg)', min: 1, max: 20, value: params.mass },
+        { name: 'angle', label: 'Angle (°)', min: 10, max: 60, value: params.angle },
+        { name: 'friction', label: 'Friction (μ)', min: 0, max: 0.8, value: params.friction, step: 0.05 },
+        { name: 'planeLength', label: 'Plane Length (m)', min: 5, max: 20, value: params.planeLength }
+      ],
+      river_crossing: [
+        { name: 'boatSpeed', label: 'Boat Speed (m/s)', min: 1, max: 10, value: params.boatSpeed },
+        { name: 'riverSpeed', label: 'River Current (m/s)', min: 0.5, max: 5, value: params.riverSpeed, step: 0.5 },
+        { name: 'angle', label: 'Boat Angle (°)', min: 45, max: 135, value: params.angle },
+        { name: 'riverWidth', label: 'River Width (m)', min: 50, max: 200, value: params.riverWidth }
+      ],
+      rolling_ball: [
+        { name: 'mass', label: 'Mass (kg)', min: 1, max: 20, value: params.mass },
+        { name: 'angle', label: 'Angle (°)', min: 10, max: 60, value: params.angle },
+        { name: 'radius', label: 'Radius (m)', min: 0.1, max: 1, value: params.radius, step: 0.1 },
+        { name: 'planeLength', label: 'Plane Length (m)', min: 5, max: 20, value: params.planeLength }
       ]
     };
     

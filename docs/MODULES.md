@@ -5,7 +5,8 @@
 ### 1. KINEMATICS (Motion)
 
 #### 1.1 Vertical Projectile
-**Status:** ✅ Implemented in prototype
+**Status:** ⚠️ Partially Implemented
+**Note:** Implemented as a special case of Projectile Motion (angle = 90°). The `vertical_projectile` scenario from the API is not explicitly handled and may be buggy.
 
 **Problem Examples:**
 - "A ball is thrown straight up with speed 10 m/s"
@@ -30,7 +31,7 @@
 ---
 
 #### 1.2 Projectile Motion (Angle)
-**Status:** ⚠️ Needs implementation
+**Status:** ✅ Implemented
 
 **Problem Examples:**
 - "A ball is thrown at 45° with speed 20 m/s"
@@ -69,7 +70,7 @@ Max Height = v0² * sin²(θ) / (2g)
 ---
 
 #### 1.3 Free Fall
-**Status:** ❌ Not implemented
+**Status:** ✅ Implemented
 
 **Problem Examples:**
 - "A ball is dropped from 50 meters"
@@ -127,6 +128,33 @@ v² = 2*g*h
 
 ---
 
+#### 1.5 Relative Velocity
+**Status:** ❌ Not implemented
+
+**Problem Examples:**
+- "A boat crosses a river with a current."
+- "An airplane flies in windy conditions."
+
+**Parameters:**
+- velocity_object (m/s, angle)
+- velocity_medium (m/s, angle)
+
+**Visualization:**
+- Vectors for each velocity
+- Resultant velocity vector
+- Path of the object
+
+**Key Insights:**
+- The velocity of an object is relative to a frame of reference.
+- Vector addition is used to find the resultant velocity.
+
+**Equations:**
+```
+V_resultant = V_object + V_medium
+```
+
+---
+
 ### 2. FORCES & DYNAMICS
 
 #### 2.1 Newton's Second Law (F=ma)
@@ -162,7 +190,7 @@ x = 0.5*a*t²
 ---
 
 #### 2.2 Friction
-**Status:** ❌ Not implemented
+**Status:** ✅ Implemented
 
 **Problem Examples:**
 - "A 10kg block slides on surface with friction coefficient 0.3"
@@ -231,41 +259,10 @@ a = g*(sin(θ) - μ*cos(θ))
 
 ---
 
-#### 2.4 Pulley System (Atwood Machine)
-**Status:** ❌ Not implemented
-
-**Problem Examples:**
-- "Two masses 5kg and 3kg connected by pulley"
-- "Atwood machine with masses 10kg and 8kg"
-
-**Parameters:**
-- mass1 (kg)
-- mass2 (kg)
-- gravity (9.8 m/s²)
-
-**Visualization:**
-- Pulley with two masses
-- Masses moving (one up, one down)
-- Tension force shown
-- Acceleration indicator
-
-**Key Insights:**
-- Heavier mass accelerates down
-- Both masses have same acceleration
-- Tension same throughout rope
-
-**Equations:**
-```
-a = (m1 - m2)*g / (m1 + m2)
-T = 2*m1*m2*g / (m1 + m2)
-```
-
----
-
 ### 3. ENERGY
 
 #### 3.1 Energy Conservation
-**Status:** ⚠️ Partially in prototype
+**Status:** ⚠️ Partially Implemented (UI text only)
 
 **Problem Examples:**
 - "A 2kg ball falls from 10m height"
@@ -470,10 +467,9 @@ v_max = sqrt(2*g*L*(1-cos(θ)))
 8. Pendulum
 
 ### Phase 3 (Advanced)
-9. Pulley System
-10. Circular Motion
-11. Inelastic Collision
-12. Complex scenarios
+9. Circular Motion
+10. Inelastic Collision
+11. Complex scenarios
 
 ---
 

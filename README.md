@@ -1,6 +1,8 @@
 # PhysicsViz - AI-Powered Physics Problem Visualizer
 
-Transform physics word problems into interactive visual simulations.
+Transform physics word problems into interactive visual simulations
+
+prototype video link -> https://drive.google.com/file/d/154Q-hzrDMHKcN1r0Kxz1gY287qPtsey0/view?usp=drivesdk
 
 ## Quick Start
 

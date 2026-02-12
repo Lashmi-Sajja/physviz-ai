@@ -52,20 +52,29 @@ SCENARIO RULES:
 3. "friction" - Block/object sliding on a surface with friction
    Required: mass (kg), velocity (m/s), friction (coefficient between 0-1)
 
+4. "relative_velocity" - Boat in a river, airplane in wind, etc.
+   - Extracts the speed and direction (angle) for both the object and the medium (e.g., river current, wind).
+   - Angle conventions: 0 degrees is East (right), 90 is South (down), 180 is West (left), 270 is North (up).
+   - If directions are ambiguous (e.g., "a boat crosses a river"), assume the object is pointed East (angle: 0) and the medium is flowing South (angle: 90).
+   - Required: object_velocity {{ "speed": number, "angle": number }}, medium_velocity {{ "speed": number, "angle": number }}
+
 IMPORTANT:
 - If thrown "straight up" or "vertically" → use "projectile_motion" with angle=90
 - If "dropped" or "falls" → use "free_fall"
 - If "slides" or mentions friction → use "friction"
+- If it mentions a boat in a river, or a plane in wind -> use "relative_velocity"
 - If thrown at any angle → use "projectile_motion"
 
 Return format:
 {{
-  "scenario": "projectile_motion" or "free_fall" or "friction",
+  "scenario": "projectile_motion" or "free_fall" or "friction" or "relative_velocity",
   "velocity": number (if applicable),
   "angle": number (if applicable, 0-90),
   "height": number (if applicable),
   "mass": number (if applicable),
-  "friction": number (if applicable)
+  "friction": number (if applicable),
+  "object_velocity": {{ "speed": number, "angle": number }} (if applicable),
+  "medium_velocity": {{ "speed": number, "angle": number }} (if applicable)
 }}
 
 Only include parameters relevant to the scenario. Return ONLY the JSON, no explanation."""

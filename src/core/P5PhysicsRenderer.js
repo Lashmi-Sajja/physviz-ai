@@ -39,6 +39,10 @@ export class P5PhysicsRenderer {
     const { params, scenario } = this.simData;
 
     switch (scenario) {
+      case 'vertical_projectile':
+        params.angle = 90;
+        this.setupProjectile(p, params);
+        break;
       case 'projectile_motion':
         this.setupProjectile(p, params);
         break;
@@ -47,6 +51,9 @@ export class P5PhysicsRenderer {
         break;
       case 'friction':
         this.setupFriction(p, params);
+        break;
+      case 'relative_velocity':
+        this.setupRelativeVelocity(p, params);
         break;
     }
   }
@@ -116,6 +123,36 @@ export class P5PhysicsRenderer {
       color: [100, 255, 100],
       friction: friction,
       mass: mass
+    });
+  }
+
+  setupRelativeVelocity(p, params) {
+    const obj_vel = params.object_velocity || { speed: 4, angle: 0 };
+    const med_vel = params.medium_velocity || { speed: 3, angle: 90 };
+
+    const obj_angle_rad = obj_vel.angle * Math.PI / 180;
+    const med_angle_rad = med_vel.angle * Math.PI / 180;
+
+    const obj_vx = obj_vel.speed * Math.cos(obj_angle_rad);
+    const obj_vy = obj_vel.speed * Math.sin(obj_angle_rad);
+
+    const med_vx = med_vel.speed * Math.cos(med_angle_rad);
+    const med_vy = med_vel.speed * Math.sin(med_angle_rad);
+
+    const resultant_vx = obj_vx + med_vx;
+    const resultant_vy = obj_vy + med_vy;
+
+    this.objects.push({
+      type: 'boat',
+      x: 50,
+      y: 200,
+      vx: resultant_vx,
+      vy: resultant_vy,
+      radius: 10,
+      color: [255, 255, 100],
+      trail: [],
+      object_velocity: {x: obj_vx, y: obj_vy, speed: obj_vel.speed, angle: obj_vel.angle},
+      medium_velocity: {x: med_vx, y: med_vy, speed: med_vel.speed, angle: med_vel.angle}
     });
   }
 
@@ -224,6 +261,20 @@ export class P5PhysicsRenderer {
         if (obj.vx === 0) {
           this.isRunning = false;
         }
+      } else if (obj.type === 'boat') {
+        const scale = 5;
+        obj.x += obj.vx * scale * dt;
+        obj.y += obj.vy * scale * dt;
+
+        // Trail
+        if (!obj.trail) obj.trail = [];
+        obj.trail.push({ x: obj.x, y: obj.y });
+        if (obj.trail.length > 100) obj.trail.shift();
+
+        // Stop if it goes off screen
+        if (obj.x > p.width || obj.y > p.height || obj.x < 0 || obj.y < 0) {
+          this.isRunning = false;
+        }
       }
     });
   }
@@ -301,6 +352,33 @@ export class P5PhysicsRenderer {
         p.textSize(10);
         p.textAlign(p.CENTER);
         p.text(`μ=${obj.friction}`, obj.x + obj.width/2, obj.y + obj.height + 15);
+      } else if (obj.type === 'boat') {
+        // Draw trail
+        p.noFill();
+        p.stroke(obj.color[0], obj.color[1], obj.color[2], 150);
+        p.strokeWeight(3);
+        p.beginShape();
+        obj.trail.forEach(point => {
+          p.vertex(point.x, point.y);
+        });
+        p.endShape();
+
+        // Draw boat
+        p.fill(obj.color[0], obj.color[1], obj.color[2]);
+        p.noStroke();
+        p.circle(obj.x, obj.y, obj.radius * 2);
+
+        // Draw velocity vectors
+        const scale = 10;
+        // Object velocity
+        p.stroke(0, 255, 0);
+        p.line(obj.x, obj.y, obj.x + obj.object_velocity.x * scale, obj.y + obj.object_velocity.y * scale);
+        // Medium velocity
+        p.stroke(0, 0, 255);
+        p.line(obj.x, obj.y, obj.x + obj.medium_velocity.x * scale, obj.y + obj.medium_velocity.y * scale);
+        // Resultant velocity
+        p.stroke(255, 0, 0);
+        p.line(obj.x, obj.y, obj.x + obj.vx * scale, obj.y + obj.vy * scale);
       }
     });
   }

@@ -5,8 +5,7 @@
 ### 1. KINEMATICS (Motion)
 
 #### 1.1 Vertical Projectile
-**Status:** ⚠️ Partially Implemented
-**Note:** Implemented as a special case of Projectile Motion (angle = 90°). The `vertical_projectile` scenario from the API is not explicitly handled and may be buggy.
+**Status:** ✅ Implemented
 
 **Problem Examples:**
 - "A ball is thrown straight up with speed 10 m/s"
@@ -129,7 +128,7 @@ v² = 2*g*h
 ---
 
 #### 1.5 Relative Velocity
-**Status:** ❌ Not implemented
+**Status:** ✅ Implemented
 
 **Problem Examples:**
 - "A boat crosses a river with a current."

@@ -110,7 +110,13 @@ class KIROApp {
       html += `
         <div class="param-item">
           <span class="param-label">${key}:</span>
-          <span class="param-value">${value}</span>
+          <span class="param-value">`;
+      if (typeof value === 'object' && value !== null) {
+        html += `<pre style="margin: 0; display: inline;">${JSON.stringify(value, null, 2)}</pre>`;
+      } else {
+        html += value;
+      }
+      html += `</span>
         </div>
       `;
     }
@@ -160,11 +166,6 @@ class KIROApp {
       card.innerHTML = `
         <h3>${concept.title}</h3>
         <p>${concept.description}</p>
-        <div class="difficulty-badges">
-          <span class="diff easy">Easy</span>
-          <span class="diff medium">Medium</span>
-          <span class="diff hard">Hard</span>
-        </div>
       `;
       conceptList.appendChild(card);
     });
@@ -175,7 +176,8 @@ class KIROApp {
       kinematics: [
         { id: 'projectile', title: 'Projectile Motion', description: 'Objects launched at angles' },
         { id: 'freefall', title: 'Free Fall', description: 'Objects falling under gravity' },
-        { id: 'friction', title: 'Friction', description: 'Sliding with resistance' }
+        { id: 'friction', title: 'Friction', description: 'Sliding with resistance' },
+        { id: 'relative_velocity', title: 'Relative Velocity', description: 'Motion in a moving medium' }
       ],
       fluid: [
         { id: 'buoyancy', title: 'Buoyancy', description: 'Objects floating in fluids' },
@@ -244,6 +246,16 @@ class KIROApp {
         { id: 'fr_hard', difficulty: 'hard', title: 'High Friction', 
           problem: 'A 20kg block slides at 30 m/s with μ=0.5', 
           params: { mass: 20, velocity: 30, friction: 0.5 }, scenario: 'friction' }
+      ],
+      relative_velocity: [
+        { id: 'rv_easy', difficulty: 'easy', title: 'Boat Crossing River',
+          problem: 'A boat that can travel at 4 m/s crosses a river with a current of 3 m/s.',
+          params: {
+            object_velocity: { speed: 4, angle: 0 }, // Boat pointing straight across
+            medium_velocity: { speed: 3, angle: 90 }  // River flowing down
+          },
+          scenario: 'relative_velocity'
+        }
       ],
       buoyancy: [
         { id: 'buoy_easy', difficulty: 'easy', title: 'Simple Float', 
@@ -421,6 +433,12 @@ class KIROApp {
         { name: 'mass', label: 'Mass (kg)', min: 1, max: 50, value: params.mass },
         { name: 'velocity', label: 'Velocity (m/s)', min: 5, max: 50, value: params.velocity },
         { name: 'friction', label: 'Friction (μ)', min: 0.1, max: 1, value: params.friction, step: 0.05 }
+      ],
+      relative_velocity: [
+        { name: 'object_velocity.speed', label: 'Object Speed (m/s)', min: 1, max: 10, value: params.object_velocity.speed },
+        { name: 'object_velocity.angle', label: 'Object Angle (°)', min: 0, max: 360, value: params.object_velocity.angle },
+        { name: 'medium_velocity.speed', label: 'Medium Speed (m/s)', min: 1, max: 10, value: params.medium_velocity.speed },
+        { name: 'medium_velocity.angle', label: 'Medium Angle (°)', min: 0, max: 360, value: params.medium_velocity.angle }
       ]
     };
     
@@ -445,7 +463,15 @@ class KIROApp {
   updateParams() {
     const params = {};
     document.querySelectorAll('#paramControls input').forEach(input => {
-      params[input.id] = parseFloat(input.value);
+      const keys = input.id.split('.');
+      if (keys.length > 1) {
+        if (!params[keys[0]]) {
+          params[keys[0]] = {};
+        }
+        params[keys[0]][keys[1]] = parseFloat(input.value);
+      } else {
+        params[input.id] = parseFloat(input.value);
+      }
     });
     this.currentLesson.params = params;
     this.renderer.updateParams(params);
